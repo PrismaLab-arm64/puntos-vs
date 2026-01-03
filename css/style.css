@@ -1,6 +1,18 @@
 :root { --neon-A: #ff0055; --neon-B: #00eaff; --neon-C: #39ff14; --neon-D: #ffff00; --bg: #050505; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: #fff; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+/* FIX CLAVE: 100dvh se ajusta a las barras del navegador móvil */
+body { 
+    font-family: system-ui, -apple-system, sans-serif; 
+    background-color: var(--bg); 
+    color: #fff; 
+    margin: 0; 
+    height: 100vh;      /* Fallback para móviles viejos */
+    height: 100dvh;     /* La magia: Altura dinámica real */
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+}
 
 /* CAPAS DE FONDO */
 .dynamic-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at center, #222 0%, #000 80%); opacity: 0.5; transition: background 0.4s; }
@@ -12,7 +24,7 @@ canvas { position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; }
 
 /* SETUP */
 .setup-container { padding: 20px; overflow-y: auto; height: 100%; display:flex; flex-direction:column; }
-h1 { font-size: 2.8rem; margin: 0; line-height: 0.9; text-transform: uppercase; font-style: italic; background: linear-gradient(to bottom, #fff 40%, #aaa 100%); -webkit-background-clip: text; color: transparent; }
+h1 { font-size: 2.5rem; margin: 0; line-height: 0.9; text-transform: uppercase; font-style: italic; background: linear-gradient(to bottom, #fff 40%, #aaa 100%); -webkit-background-clip: text; color: transparent; }
 .vs-logo { font-size: 1.5em; font-weight: 900; background: linear-gradient(to right, #00eaff, #ff0055); -webkit-background-clip: text; color: transparent; letter-spacing: -2px; display: inline-block; transform: skew(-10deg); }
 .version-tag { color:#666; margin:0 0 20px 0; letter-spacing:1px; font-size:0.8rem; }
 
@@ -27,24 +39,26 @@ input::placeholder { color: #888; font-style: italic; }
 .dot { width: 32px; height: 32px; border-radius: 50%; display:grid; place-items:center; font-weight:bold; font-size:0.8rem; color:black; border: 2px solid #fff; }
 
 /* JUEGO UI */
-.header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); }
+.header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); flex-shrink: 0; }
 .header-info { font-size:0.8rem; color:#aaa; }
 .btn-menu { background: #333; border: 1px solid #555; color: #ccc; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; }
-.active-zone { flex: 1; display: flex; justify-content: center; align-items: center; padding: 10px; width: 100%; }
-.turn-card { width: 100%; max-width: 400px; text-align: center; background: rgba(20,20,20,0.85); padding: 15px 0; border-radius: 20px; border: 2px solid #333; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; min-height: 200px; }
-.turn-card.pop { transform: scale(1.02); border-color: white; }
-.team-badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 5px; color: #000; box-shadow: 0 0 10px currentColor; align-self: center; }
-.player-name { font-size: clamp(2rem, 8vw, 3.2rem); font-weight: 900; line-height: 1.1; margin: 5px 0; text-shadow: 0 5px 10px rgba(0,0,0,0.5); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 10px; }
-.player-score { font-size: clamp(3.5rem, 15vw, 5.5rem); font-weight: 700; margin: 0; font-family: monospace; line-height: 1; }
 
-/* CALCULADORA */
-.controls { background: #111; padding: 10px; padding-bottom: 20px; border-top: 1px solid #333; width: 100%; }
-.calc-display { background: #000; color: #fff; font-family: monospace; font-size: 2rem; text-align: right; border: 1px solid #333; border-radius: 8px; width: 100%; margin-bottom: 8px; font-weight: bold; padding: 10px; pointer-events: none; }
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.num-btn { background: #222; color: #fff; border-radius: 10px; padding: 12px 0; font-size: 1.5rem; border: 1px solid #333; }
+/* ZONA ACTIVA (Se encoge si hace falta) */
+.active-zone { flex: 1; display: flex; justify-content: center; align-items: center; padding: 5px; width: 100%; overflow: hidden; }
+.turn-card { width: 100%; max-width: 400px; text-align: center; background: rgba(20,20,20,0.85); padding: 10px 0; border-radius: 20px; border: 2px solid #333; transition: all 0.2s; display: flex; flex-direction: column; justify-content: center; min-height: 140px; }
+.turn-card.pop { transform: scale(1.02); border-color: white; }
+.team-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 5px; color: #000; box-shadow: 0 0 10px currentColor; align-self: center; }
+.player-name { font-size: clamp(1.8rem, 6vw, 2.8rem); font-weight: 900; line-height: 1.1; margin: 2px 0; text-shadow: 0 5px 10px rgba(0,0,0,0.5); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 10px; }
+.player-score { font-size: clamp(3rem, 12vw, 4.5rem); font-weight: 700; margin: 0; font-family: monospace; line-height: 1; }
+
+/* CALCULADORA (Ajustada para no salirse) */
+.controls { background: #111; padding: 8px; padding-bottom: 15px; border-top: 1px solid #333; width: 100%; flex-shrink: 0; }
+.calc-display { background: #000; color: #fff; font-family: monospace; font-size: 1.8rem; text-align: right; border: 1px solid #333; border-radius: 8px; width: 100%; margin-bottom: 6px; font-weight: bold; padding: 8px; pointer-events: none; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.num-btn { background: #222; color: #fff; border-radius: 8px; padding: 12px 0; font-size: 1.4rem; border: 1px solid #333; touch-action: manipulation; }
 .num-btn:active { background: #444; }
-.btn-ok { background: #444; color: #000; grid-column: span 1; font-weight: 900; font-size: 1.3rem; animation: pulse 2s infinite; border: none; }
-.btn-undo { background:#330000; color:#ff5555; border-color:#500; font-size:1rem; }
+.btn-ok { background: #444; color: #000; grid-column: span 1; font-weight: 900; font-size: 1.2rem; animation: pulse 2s infinite; border: none; }
+.btn-undo { background:#330000; color:#ff5555; border-color:#500; font-size:0.9rem; }
 @keyframes pulse { 0% { box-shadow: 0 0 5px currentColor; } 50% { box-shadow: 0 0 20px currentColor; } 100% { box-shadow: 0 0 5px currentColor; } }
 
 /* WINNER MODAL */
@@ -55,8 +69,14 @@ input::placeholder { color: #888; font-style: italic; }
 .btn-outline { margin-top:15px; background:transparent; border:1px solid #555; color:#aaa; padding:10px 20px; border-radius:20px; width: 60%; }
 .btn-link { margin-top:20px; color:#666; background:transparent; border:none; text-decoration:underline; }
 
-/* RESPONSIVIDAD */
-@media (max-height: 600px) { .turn-card { padding: 5px 0; min-height: 120px; } .player-name { font-size: 1.8rem; } .player-score { font-size: 3rem; } .num-btn { padding: 5px 0; font-size: 1.2rem; } .setup-container { padding: 10px; } .btn-start { padding: 10px; margin-top: 10px; } }
+/* AJUSTE PARA PANTALLAS PEQUEÑAS */
+@media (max-height: 650px) { 
+    .turn-card { min-height: 100px; padding: 5px 0; }
+    .player-name { font-size: 1.5rem; } 
+    .player-score { font-size: 2.5rem; } 
+    .num-btn { padding: 8px 0; font-size: 1.1rem; }
+    .controls { padding-bottom: 5px; }
+}
 
 /* COLORES DE EQUIPO */
 .t-A { --glow: var(--neon-A); color: var(--neon-A); border-color: var(--neon-A); }
