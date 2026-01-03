@@ -7,51 +7,57 @@ body {
     color: #fff; 
     margin: 0; 
     height: 100vh;      
-    height: 100dvh;     /* Fix móvil */
+    height: 100dvh;
     overflow: hidden; 
     display: flex; 
     flex-direction: column; 
 }
 
-/* SETUP */
+/* PANTALLAS */
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 600px; margin: 0 auto; z-index: 10; position: relative; }
 .active { display: flex !important; }
 
+/* SETUP SCREEN (CONFIGURACIÓN) */
 .setup-container { padding: 20px; overflow-y: auto; height: 100%; display:flex; flex-direction:column; }
-.vs-logo { font-size: 3rem; font-weight: 900; background: linear-gradient(to right, #00eaff, #ff0055); -webkit-background-clip: text; color: transparent; margin: 0; font-style: italic; }
-.version-tag { color: #555; font-size: 0.8rem; margin-bottom: 20px; font-family: monospace; }
+.vs-logo { font-size: 3rem; font-weight: 900; background: linear-gradient(to right, #00eaff, #ff0055); -webkit-background-clip: text; color: transparent; margin: 0; font-style: italic; text-align: center; }
+.version-tag { color: #555; font-size: 0.8rem; margin-bottom: 20px; font-family: monospace; text-align: center; }
 
-.list-item { display: flex; align-items: center; margin-bottom: 10px; animation: fadeIn 0.3s; }
-.dot { width: 35px; height: 35px; border-radius: 50%; display:grid; place-items:center; font-weight:bold; color:black; margin-right: 10px; font-size: 0.9rem; }
-input { background: #222; border: 1px solid #444; color: white; padding: 15px; border-radius: 8px; width: 100%; font-size: 1.1rem; outline: none; }
-input:focus { border-color: #00eaff; background: #111; }
+/* Tarjeta de Equipo en Setup */
+.list-item { display: flex; align-items: flex-start; margin-bottom: 15px; background: #111; padding: 10px; border-radius: 12px; border: 1px solid #333; }
+.dot { width: 40px; height: 40px; border-radius: 50%; display:grid; place-items:center; font-weight:bold; color:black; margin-right: 12px; font-size: 1.2rem; flex-shrink: 0; margin-top: 5px; }
+.inputs-col { flex: 1; display: flex; flex-direction: column; gap: 8px; }
 
-.btn-add { background: #222; color: #fff; border: 1px dashed #555; width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 1.5rem; }
+input { background: #222; border: 1px solid #444; color: white; padding: 10px; border-radius: 6px; width: 100%; font-size: 1rem; outline: none; }
+input:focus { border-color: #00eaff; background: #000; }
+.input-members { font-size: 0.85rem; color: #aaa; font-style: italic; }
+
+.btn-add { background: #1a1a1a; color: #888; border: 1px dashed #444; width: 100%; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
 .btn-start { width: 100%; padding: 18px; background: linear-gradient(45deg, #ff0055, #ff5500); color: white; border-radius: 50px; font-size: 1.3rem; font-weight: bold; border:none; box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); margin-top: 15px; }
 
-/* JUEGO */
-.header { padding: 10px; display: flex; justify-content: space-between; background: rgba(20,20,20,0.8); font-size: 0.8rem; color: #888; }
-.active-zone { flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px; }
-.turn-card { width: 100%; background: #111; border: 3px solid #333; border-radius: 20px; padding: 20px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s; }
+/* GAME SCREEN (JUEGO) */
+.header { padding: 10px 15px; display: flex; justify-content: space-between; background: rgba(20,20,20,0.9); font-size: 0.8rem; color: #888; border-bottom: 1px solid #333; }
+.active-zone { flex: 1; display: flex; align-items: center; justify-content: center; padding: 15px; }
 
-.player-label { font-size: 0.8rem; text-transform: uppercase; padding: 5px 10px; border-radius: 20px; color: #000; font-weight: 900; align-self: center; margin-bottom: 10px; }
-.player-name { font-size: 2.5rem; font-weight: 900; margin: 0; line-height: 1.1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.player-score { font-size: 4rem; font-family: monospace; font-weight: bold; line-height: 1; margin-top: 5px; }
+.turn-card { width: 100%; background: #111; border: 4px solid #333; border-radius: 24px; padding: 20px; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+.player-label { font-size: 0.8rem; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; color: #000; font-weight: 900; align-self: center; margin-bottom: 15px; letter-spacing: 1px; }
+.player-name { font-size: clamp(2rem, 8vw, 3.5rem); font-weight: 900; margin: 0; line-height: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #fff; }
+.player-members { font-size: 1rem; color: #aaa; margin-top: 5px; font-style: italic; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 90%; margin: 5px auto 0; }
+.player-score { font-size: clamp(4rem, 15vw, 6rem); font-family: monospace; font-weight: bold; line-height: 1; margin-top: auto; margin-bottom: auto; text-shadow: 0 0 20px currentColor; }
 
 /* CALCULADORA */
-.controls { background: #111; padding: 10px; border-top: 1px solid #333; }
-.calc-display { background: #000; color: #fff; font-family: monospace; font-size: 2rem; text-align: right; padding: 10px; border-radius: 8px; margin-bottom: 10px; height: 60px; font-weight: bold; }
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.num-btn { background: #222; color: #fff; border: 1px solid #333; padding: 15px 0; border-radius: 10px; font-size: 1.4rem; touch-action: manipulation; }
-.num-btn:active { background: #444; }
-.btn-ok { background: #333; color: #00eaff; border-color: #00eaff; font-weight: 900; }
+.controls { background: #050505; padding: 10px; border-top: 1px solid #333; }
+.calc-display { background: #000; color: #fff; font-family: monospace; font-size: 2.2rem; text-align: right; padding: 10px 15px; border-radius: 12px; margin-bottom: 10px; height: 70px; font-weight: bold; display:flex; align-items:center; justify-content:flex-end; border: 1px solid #333; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.num-btn { background: #1a1a1a; color: #fff; border: none; padding: 15px 0; border-radius: 12px; font-size: 1.5rem; touch-action: manipulation; box-shadow: 0 4px 0 #000; }
+.num-btn:active { background: #333; transform: translateY(4px); box-shadow: none; }
+.btn-ok { background: #222; color: #00eaff; border: 2px solid #00eaff; font-weight: 900; }
 .btn-undo { background: #330000; color: #ff5555; font-size: 1rem; }
 
-/* MODAL */
-.modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.96); display:none; flex-direction:column; justify-content:center; align-items:center; z-index:100; }
-.btn-revancha { width: 80%; padding: 15px; background: #00eaff; color: #000; font-weight: 900; border-radius: 50px; border:none; margin-top: 30px; }
+/* MODAL VICTORIA */
+.modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.98); display:none; flex-direction:column; justify-content:center; align-items:center; z-index:100; }
+.btn-revancha { width: 80%; padding: 15px; background: #fff; color: #000; font-weight: 900; border-radius: 50px; border:none; margin-top: 30px; font-size: 1.2rem; }
 
-/* COLORES DINÁMICOS */
+/* COLORES DE EQUIPO */
 .bg-A { background: var(--neon-A); } .text-A { color: var(--neon-A); } .b-A { border-color: var(--neon-A); }
 .bg-B { background: var(--neon-B); } .text-B { color: var(--neon-B); } .b-B { border-color: var(--neon-B); }
 .bg-C { background: var(--neon-C); } .text-C { color: var(--neon-C); } .b-C { border-color: var(--neon-C); }
