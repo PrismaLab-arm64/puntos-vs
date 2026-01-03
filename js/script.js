@@ -1,143 +1,189 @@
-const T_COLORS = { A:'#ff0055', B:'#00eaff', C:'#39ff14', D:'#ffff00', null:'#ffffff' };
-const TEAMS = ['A', 'B', 'C', 'D'];
-let D = { ps: [], target: 2000, active: false, turn: 0 }; 
-let currentInput = "0";
+/* LÓGICA DEL MARCADOR - VERSIÓN 4.0 (SONIDO + VIBRACIÓN) */
 
-// --- WAKELOCK ---
-let wakeLock = null;
-async function requestWakeLock() {
-    if ('wakeLock' in navigator) { try { wakeLock = await navigator.wakeLock.request('screen'); } catch (err) {} }
-}
-document.addEventListener('visibilitychange', async () => { if (wakeLock !== null && document.visibilityState === 'visible') requestWakeLock(); });
+// --- CONFIGURACIÓN DE AUDIO (SINTETIZADOR ARCADE) ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-// --- SISTEMA ---
-function save() { try { localStorage.setItem('br_v1_1_pro', JSON.stringify(D)); } catch(e){} }
-function load() {
-    try {
-        let s = localStorage.getItem('br_v1_1_pro');
-        if(s) { D = JSON.parse(s); if(D.target) document.getElementById('target').value = D.target; }
-        updateStartButton();
-        if(D.active) switchTo('game'); else renderList();
-    } catch(e) { D = { ps: [], target: 2000, active: false, turn: 0 }; }
+function playTone(freq, type, duration) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type; // 'sine', 'square', 'sawtooth', 'triangle'
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
 }
 
-function switchTo(screenName) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenName).classList.add('active');
-    if(screenName === 'game') { requestWakeLock(); document.getElementById('dTarget').innerText = D.target; updateUI(); }
+// SONIDOS PREDEFINIDOS
+const sfx = {
+    click: () => playTone(800, 'square', 0.1),
+    ok: () => { playTone(600, 'sine', 0.1); setTimeout(() => playTone(1200, 'square', 0.2), 100); },
+    undo: () => playTone(150, 'sawtooth', 0.3),
+    win: () => {
+        // Melodía de Victoria (Fanfarria tipo Final Fantasy corta)
+        const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50]; // C E G C G C
+        const times = [0, 150, 300, 450, 600, 800];
+        notes.forEach((note, i) => {
+            setTimeout(() => playTone(note, 'square', 0.2), times[i]);
+        });
+        // Vibración épica
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 500]);
+    }
+};
+
+// VIBRACIÓN HÁPTICA
+function haptic(ms = 40) {
+    if (navigator.vibrate) navigator.vibrate(ms);
 }
 
-function goToMenu() { switchTo('setup'); renderList(); updateStartButton(); }
+// --- VARIABLES DEL JUEGO ---
+let teams = [];
+let currentTurn = 0;
+let winScore = 0;
+let historyStack = []; // Para el botón deshacer
 
-function updateStartButton() {
-    let btn = document.getElementById('btnMainAction');
-    if(D.active) { btn.innerText = "CONTINUAR JUEGO ▶"; btn.style.background = "linear-gradient(45deg, #27ae60, #2ecc71)"; } 
-    else { btn.innerText = "¡A JUGAR!"; btn.style.background = "linear-gradient(45deg, #ff0055, #ff5500)"; }
-}
+// --- ELEMENTOS DEL DOM ---
+const setupScreen = document.getElementById('setup-screen');
+const gameScreen = document.getElementById('game-screen');
+const teamList = document.getElementById('team-list');
+const turnCard = document.getElementById('turn-card');
+const display = document.getElementById('calc-display');
+const winnerModal = document.getElementById('winner-modal');
 
-// --- SETUP ---
-function addP() {
-    let n = document.getElementById('pName'); let v = n.value.trim();
-    if(v){ D.ps.push({n:v, s:0, t:null}); n.value=''; save(); renderList(); }
-}
-function toggleTeam(i) {
-    let p = D.ps[i]; let idx = p.t ? TEAMS.indexOf(p.t) : -1; idx++; 
-    p.t = idx < TEAMS.length ? TEAMS[idx] : null; save(); renderList();
-}
-function renderList() {
-    let l = document.getElementById('playerList'); l.innerHTML='';
-    D.ps.forEach((p,i)=>{
-        let c = T_COLORS[p.t] || '#fff'; let tTxt = p.t || '•';
-        l.innerHTML += `<div class="list-item" style="border-left-color:${c}"><div style="display:flex;align-items:center;gap:15px;"><div class="dot" style="background:${c}" onclick="toggleTeam(${i})">${tTxt}</div><span style="font-weight:bold; font-size:1.1rem">${p.n}</span></div><button onclick="delP(${i})" style="background:transparent;border:none;color:#777;font-size:1.5rem; padding:5px 15px;">✕</button></div>`;
-    });
-}
-function delP(i){ D.ps.splice(i,1); save(); renderList(); }
-
-function processStart() {
-    if(D.ps.length === 0) return alert("Faltan jugadores");
-    let val = document.getElementById('target').value; D.target = val ? parseInt(val) : 2000;
-    if(!D.active) { sortPlayers(); D.active = true; D.turn = 0; }
-    save(); switchTo('game');
-}
-function sortPlayers() {
-    let sorted = []; let map = { A:[], B:[], C:[], D:[], N:[] };
-    D.ps.forEach(p => { if(p.t && map[p.t]) map[p.t].push(p); else map.N.push(p); });
-    let max = Math.max(map.A.length, map.B.length, map.C.length, map.D.length, map.N.length);
-    for(let i=0; i<max; i++) { TEAMS.forEach(t => { if(map[t][i]) sorted.push(map[t][i]); }); }
-    map.N.forEach(p => sorted.push(p)); D.ps = sorted;
-}
-
-// --- JUEGO ---
-function updateUI() {
-    if(!D.ps[D.turn]) D.turn = 0; 
-    let p = D.ps[D.turn]; if(!p) return;
-    let score = p.s; if(p.t) score = D.ps.filter(x => x.t === p.t).reduce((a,b) => a+b.s, 0);
-    let card = document.getElementById('activeCard'); let badge = document.getElementById('acBadge'); let bg = document.getElementById('dynamicBG');
-    let color = T_COLORS[p.t] || '#fff';
+// --- FUNCIONES DE SETUP ---
+function addTeamField() {
+    haptic();
+    sfx.click();
+    if (teamList.children.length >= 4) return; 
     
-    card.className = "turn-card pop"; card.style.borderColor = color;
-    badge.innerText = p.t ? "EQUIPO " + p.t : "INDIVIDUAL"; badge.style.background = color;
-    document.getElementById('acName').innerText = p.n; document.getElementById('acName').style.color = '#fff';
-    document.getElementById('acScore').innerText = score; document.getElementById('acScore').style.color = color;
-    bg.style.background = `radial-gradient(circle at center, ${color}33 0%, #000 80%)`;
-    updateBtnState(color);
-    setTimeout(()=>card.classList.remove('pop'), 150); updateLeader();
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    const letters = ['A', 'B', 'C', 'D'];
+    const index = teamList.children.length;
+    
+    div.innerHTML = `
+        <div class="dot t-${letters[index]}">${letters[index]}</div>
+        <input type="text" placeholder="Nombre Equipo ${letters[index]}" class="team-name-input" style="margin:0; width:70%;">
+    `;
+    teamList.appendChild(div);
 }
 
-function nextTurn() { D.turn++; if(D.turn >= D.ps.length) D.turn=0; currentInput="0"; updateScreen(); save(); updateUI(); }
-function typeNum(n) { if(currentInput==="0") currentInput=String(n); else if(currentInput.length<5) currentInput+=n; updateScreen(); }
-function updateScreen() { document.getElementById('calcScreen').innerText = currentInput; let p = D.ps[D.turn]; let color = T_COLORS[p.t] || '#fff'; updateBtnState(color); }
-function updateBtnState(color) {
-    let btn = document.getElementById('btnAction');
-    if(currentInput === "0") { btn.innerText = "PASAR"; btn.style.background = "#333"; btn.style.color = "#888"; btn.style.boxShadow = "none"; } 
-    else { btn.innerText = "OK"; btn.style.background = color; btn.style.color = "#000"; btn.style.boxShadow = `0 0 15px ${color}`; }
+function startGame() {
+    haptic();
+    const inputs = document.querySelectorAll('.team-name-input');
+    const goalInput = document.getElementById('goal-points').value;
+    
+    // Validar
+    if (inputs.length < 1) return alert("Agrega al menos 1 equipo");
+    
+    teams = Array.from(inputs).map((input, i) => ({
+        name: input.value.trim() || `EQUIPO ${['A','B','C','D'][i]}`,
+        score: 0,
+        id: ['A','B','C','D'][i]
+    }));
+    
+    winScore = parseInt(goalInput) || 1000; // Por defecto 1000 si está vacío
+    
+    // Cambiar pantalla
+    setupScreen.classList.remove('active');
+    gameScreen.classList.add('active');
+    
+    // Iniciar Audio (Navegadores requieren interacción previa)
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    updateTurnUI();
 }
 
-function actionBtn() {
-    let pts = parseInt(currentInput); if (pts === 0) { nextTurn(); return; }
-    let p = D.ps[D.turn]; p.s += pts; 
-    try { if(navigator.vibrate) navigator.vibrate(50); } catch(e){}
-    let total = p.t ? D.ps.filter(x=>x.t===p.t).reduce((a,b)=>a+b.s,0) : p.s;
-    if(total >= D.target) {
-        document.getElementById('winModal').style.display='flex';
-        document.getElementById('wName').innerText = p.t ? "EQUIPO "+p.t : p.n;
-        document.getElementById('wScore').innerText = total;
-        try { if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]); } catch(e){}
-        startConf();
-    } else { nextTurn(); }
+// --- LÓGICA DEL JUEGO ---
+function updateTurnUI() {
+    const team = teams[currentTurn];
+    
+    // Actualizar Tarjeta Grande
+    turnCard.className = `turn-card t-${team.id}`; // Asigna color del equipo
+    turnCard.innerHTML = `
+        <span class="team-badge t-${team.id}">TURNO ACTUAL</span>
+        <div class="player-name">${team.name}</div>
+        <div class="player-score">${team.score}</div>
+    `;
+    
+    // Actualizar Info Header
+    document.getElementById('meta-display').textContent = `META: ${winScore}`;
+    
+    // Buscar Líder
+    const leader = [...teams].sort((a,b) => b.score - a.score)[0];
+    document.getElementById('leader-display').textContent = `LÍDER: ${leader.name} (${leader.score})`;
+    
+    // Limpiar calculadora
+    display.textContent = '0';
 }
 
-function undo() {
-    let pts = parseInt(currentInput); if(pts===0)return;
-    let p = D.ps[D.turn]; p.s -= pts; if(p.s<0)p.s=0;
-    currentInput="0"; updateScreen(); save(); updateUI();
-}
-
-function updateLeader() {
-    let max=-1, who="-"; let done=[];
-    D.ps.forEach(p=>{
-        let sc=p.s; let nm=p.n;
-        if(p.t){ if(done.includes(p.t))return; sc=D.ps.filter(x=>x.t===p.t).reduce((a,b)=>a+b.s,0); nm="EQ "+p.t; done.push(p.t); }
-        if(sc>max){max=sc;who=nm;}
-    });
-    document.getElementById('leader').innerText = max>0 ? `${who} (${max})` : "-";
-}
-
-function rematch() {
-    if(confirm("¿Reiniciar puntajes a 0? (Se mantienen los equipos)")) {
-        D.ps.forEach(p => p.s = 0);
-        D.turn = 0; D.active = true; currentInput = "0";
-        save(); updateUI(); updateScreen();
-        document.getElementById('winModal').style.display = 'none';
+function addToDisplay(num) {
+    haptic(30);
+    sfx.click();
+    if (display.textContent === '0') display.textContent = '';
+    if (display.textContent.length < 6) {
+        display.textContent += num;
     }
 }
 
-function fullReset(){ 
-    if(confirm("¿Borrar todo y salir?")) { localStorage.removeItem('br_v1_1_pro'); location.reload(); } 
+function submitScore() {
+    const points = parseInt(display.textContent);
+    if (!points) return; // Si es 0 o vacío no hace nada
+    
+    haptic(70);
+    sfx.ok(); // Sonido de confirmación
+    
+    // Guardar estado para Deshacer
+    historyStack.push(JSON.parse(JSON.stringify({ teams, currentTurn })));
+    
+    // Sumar puntos
+    teams[currentTurn].score += points;
+    
+    // Verificar Victoria
+    if (teams[currentTurn].score >= winScore) {
+        showWinner(teams[currentTurn]);
+    } else {
+        // Pasar turno (cíclico)
+        currentTurn = (currentTurn + 1) % teams.length;
+        updateTurnUI();
+    }
 }
-function closeWin() { document.getElementById('winModal').style.display = 'none'; }
 
-const canvas = document.getElementById('confetti'); const ctx = canvas.getContext('2d');
-function startConf() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; let ps=[]; for(let i=0;i<90;i++) ps.push({x:Math.random()*canvas.width, y:Math.random()*-canvas.height, c:'hsl('+Math.random()*360+',100%,50%)', s:2+Math.random()*4}); function loop(){ if(document.getElementById('winModal').style.display!='flex'){ctx.clearRect(0,0,canvas.width,canvas.height);return;} ctx.clearRect(0,0,canvas.width,canvas.height); ps.forEach(p=>{ p.y+=p.s; if(p.y>canvas.height)p.y=-10; ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(p.x,p.y,5,0,6.28); ctx.fill() }); requestAnimationFrame(loop);} loop();}
+function undoLast() {
+    haptic(50);
+    sfx.undo();
+    if (historyStack.length === 0) return;
+    
+    const lastState = historyStack.pop();
+    teams = lastState.teams;
+    currentTurn = lastState.currentTurn;
+    updateTurnUI();
+}
 
-window.onload = load;
+function showWinner(team) {
+    sfx.win(); // ¡FANFARRIA!
+    document.getElementById('w-name').textContent = team.name;
+    document.getElementById('w-score').textContent = `${team.score} PUNTOS`;
+    winnerModal.style.display = 'flex';
+    
+    // Efecto visual simple (fondo parpadea)
+    let flash = 0;
+    const interval = setInterval(() => {
+        winnerModal.style.backgroundColor = flash % 2 ? 'rgba(0,0,0,0.95)' : 'rgba(50,50,0,0.95)';
+        flash++;
+        if(flash > 10) clearInterval(interval);
+    }, 200);
+}
+
+function resetGame() {
+    location.reload(); // La forma más segura de reiniciar todo limpia
+}
+
+// INICIALIZACIÓN
+document.addEventListener('DOMContentLoaded', () => {
+    addTeamField(); // Agregar Equipo A por defecto
+    addTeamField(); // Agregar Equipo B por defecto
+});
