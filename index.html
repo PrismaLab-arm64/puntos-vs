@@ -62,10 +62,13 @@
     </div>
 
     <div id="winner-modal" class="modal">
-        <h2 style="color:white; letter-spacing:5px;">VICTORIA</h2>
+        <h2 style="color:white; letter-spacing:5px; margin-bottom:5px;">¡VICTORIA!</h2>
         <h1 id="w-name" class="winner-name">GANADOR</h1>
-        <h3 id="w-score" class="winner-score">0 PTS</h3>
-        <button id="btn-revancha" class="btn-revancha">NUEVA PARTIDA</button>
+        <h3 id="w-score" class="winner-score" style="margin-bottom: 30px;">0 PTS</h3>
+        
+        <button onclick="app.rematch('all')" class="btn-revancha">🔄 REVANCHA (TODOS)</button>
+        <button onclick="app.rematch('top2')" class="btn-revancha" style="background: gold; color: black; margin-top: 10px;">🏆 FINAL (TOP 1 vs TOP 2)</button>
+        <button onclick="location.reload()" class="btn-add" style="margin-top:20px; border:1px solid #555; background:transparent; color:#888;">SALIR / NUEVA</button>
     </div>
 
     <script src="js/script.js"></script>
