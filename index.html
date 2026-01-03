@@ -3,75 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PUNTOS VS - Oficial</title>
+    <title>PUNTOS VS | Prisma Labs</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div id="dynamicBG" class="dynamic-bg"></div>
-    <canvas id="confetti"></canvas>
 
-    <div id="setup" class="screen active">
+    <div class="dynamic-bg"></div>
+
+    <div id="setup-screen" class="screen active">
         <div class="setup-container">
-            <div>
-                <h1>PUNTOS<br><span class="vs-logo">VS</span></h1>
-                <p class="version-tag">V1.1 UNIVERSAL</p>
-                
-                <label>PUNTOS A JUGAR</label>
-                <input type="number" id="target" placeholder="¿A cuántos puntos juegan? (Ej: 2000)" onchange="save()">
-                
-                <label>AGREGAR JUGADOR</label>
-                <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                    <input type="text" id="pName" placeholder="Nombre...">
-                    <button onclick="addP()" class="btn-add">+</button>
+            <h1 class="vs-logo">PUNTOS VS</h1>
+            <p class="version-tag">v6.0 SYSTEM READY</p>
+            
+            <div id="team-list">
                 </div>
+            
+            <button id="btn-add-team" class="btn-add">+</button>
+            
+            <div style="margin-top: auto;">
+                <label>META DE PUNTOS</label>
+                <input type="number" id="goal-points" value="1000" inputmode="numeric">
+                <button id="btn-start-game" class="btn-start">INICIAR PARTIDA</button>
             </div>
-            <div id="playerList" style="flex:1; overflow-y:auto; padding-bottom:10px;"></div>
-            <button id="btnMainAction" class="btn-start" onclick="processStart()">¡A JUGAR!</button>
         </div>
     </div>
 
-    <div id="game" class="screen">
+    <div id="game-screen" class="screen">
         <div class="header">
-            <button class="btn-menu" onclick="goToMenu()">MENU</button>
-            <div class="header-info">META: <span id="dTarget" style="color:white; font-weight:bold">2000</span></div>
-            <div class="header-info">LIDER: <span id="leader" style="color:#ffcc00; font-weight:bold">-</span></div>
+            <span id="meta-display" class="header-info">META: 1000</span>
+            <span id="leader-display" class="header-info">LÍDER: -</span>
         </div>
+
         <div class="active-zone">
-            <div id="activeCard" class="turn-card">
-                <div id="acBadge" class="team-badge" style="background:#fff">INDIVIDUAL</div>
-                <h2 id="acName" class="player-name">JUGADOR</h2>
-                <div id="acScore" class="player-score">0</div>
-            </div>
+            <div id="turn-card" class="turn-card">
+                </div>
         </div>
+
         <div class="controls">
-            <div id="calcScreen" class="calc-display">0</div>
+            <div id="calc-display" class="calc-display">0</div>
             <div class="numpad">
-                <button class="num-btn" onclick="typeNum(1)">1</button>
-                <button class="num-btn" onclick="typeNum(2)">2</button>
-                <button class="num-btn" onclick="typeNum(3)">3</button>
-                <button class="num-btn" onclick="typeNum(4)">4</button>
-                <button class="num-btn" onclick="typeNum(5)">5</button>
-                <button class="num-btn" onclick="typeNum(6)">6</button>
-                <button class="num-btn" onclick="typeNum(7)">7</button>
-                <button class="num-btn" onclick="typeNum(8)">8</button>
-                <button class="num-btn" onclick="typeNum(9)">9</button>
-                <button class="num-btn btn-undo" onclick="undo()">CORR</button>
-                <button class="num-btn" onclick="typeNum(0)">0</button>
-                <button id="btnAction" class="num-btn btn-ok" onclick="actionBtn()">PASAR</button>
+                <button class="num-btn" data-val="1">1</button>
+                <button class="num-btn" data-val="2">2</button>
+                <button class="num-btn" data-val="3">3</button>
+                <button class="num-btn" data-val="4">4</button>
+                <button class="num-btn" data-val="5">5</button>
+                <button class="num-btn" data-val="6">6</button>
+                <button class="num-btn" data-val="7">7</button>
+                <button class="num-btn" data-val="8">8</button>
+                <button class="num-btn" data-val="9">9</button>
+                <button id="btn-undo" class="num-btn btn-undo">BORRAR</button>
+                <button class="num-btn" data-val="0">0</button>
+                <button id="btn-ok" class="num-btn btn-ok">OK</button>
             </div>
         </div>
     </div>
 
-    <div id="winModal" class="modal">
-        <div style="font-size:5rem;">🏆</div>
-        <h2 id="wName" class="winner-name"></h2>
-        <h3 id="wScore" class="winner-score"></h3>
-        
-        <button class="btn-revancha" onclick="rematch()">🔄 REVANCHA</button>
-        <div style="font-size:0.8rem; color:#888; margin-top:5px">Reinicia puntajes, mantiene equipos</div>
-
-        <button class="btn-outline" onclick="fullReset()">❌ Borrar y Salir</button>
-        <button onclick="closeWin()" class="btn-link">Ver Tablero</button>
+    <div id="winner-modal" class="modal">
+        <h2 style="color:white; letter-spacing:5px;">VICTORIA</h2>
+        <h1 id="w-name" class="winner-name">EQUIPO GANADOR</h1>
+        <h3 id="w-score" class="winner-score">0 PUNTOS</h3>
+        <button id="btn-revancha" class="btn-revancha">NUEVA PARTIDA</button>
     </div>
 
     <script src="js/script.js"></script>
