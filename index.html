@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PUNTOS VS | Prisma Labs</title>
+    
     <link rel="stylesheet" href="css/style.css">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Puntos VS">
 </head>
 <body>
 
@@ -20,7 +32,8 @@
                 <button id="btn-mode-solo" class="mode-btn" onclick="app.setMode('solo')">INDIVIDUAL</button>
             </div>
             
-            <div id="team-list"></div>
+            <div id="team-list">
+                </div>
             
             <button id="btn-add-team" class="btn-add">+ AGREGAR RIVAL</button>
             
@@ -28,6 +41,7 @@
                 <label>META DE PUNTOS</label>
                 <input type="number" id="goal-points" value="1000" inputmode="numeric">
                 <button id="btn-start-game" class="btn-start">INICIAR PARTIDA</button>
+                
                 <div id="import-alert" style="display:none; color:#00eaff; text-align:center; margin-top:10px; font-size:0.9rem;">
                     📥 Partida recuperada con éxito
                 </div>
@@ -101,11 +115,13 @@
             <h2>TRANSFERIR PARTIDA</h2>
             <div id="qrcode" style="background:white; padding:10px; border-radius:10px; margin:10px;"></div>
             <p style="text-align:center; font-size:0.8rem; color:#aaa;">Escanea con la cámara del otro celular</p>
+            
             <div style="width:100%; border-top:1px solid #333; margin:15px 0; padding-top:15px;">
                 <p style="text-align:center; margin:0 0 5px 0;">O copia el código:</p>
                 <textarea id="share-code-text" style="width:100%; height:60px; font-size:0.7rem; color:#00eaff; border-color:#005555;" readonly></textarea>
                 <button onclick="app.copyCodeToClipboard()" class="btn-start" style="margin-top:10px; padding:10px; font-size:1rem;">COPIAR CÓDIGO</button>
             </div>
+            
             <button onclick="document.getElementById('share-modal').style.display='none'" class="btn-add" style="margin-top:10px;">CERRAR</button>
         </div>
     </div>
