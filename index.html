@@ -72,10 +72,12 @@
             </div>
             
             <div class="menu-grid">
+                <button onclick="app.editGoal()" class="menu-opt" style="border-color:#ffff00; color:#ffff00;">🎯 Meta: <span id="menu-goal-display">1000</span></button>
+                
                 <button onclick="app.toggleSound()" class="menu-opt">🔊 Sonido: <span id="sound-state">ON</span></button>
                 <button onclick="app.openShareModal()" class="menu-opt" style="border-color:#00eaff; color:#00eaff;">📲 Transferir / QR</button>
                 <button onclick="app.openEditNames()" class="menu-opt">✏️ Editar Nombres</button>
-                <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000;">♻️ Reiniciar Puntos</button>
+                <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000; grid-column: span 2;">♻️ Reiniciar Puntos</button>
             </div>
             
             <div style="padding: 0 15px;">
@@ -99,13 +101,11 @@
             <h2>TRANSFERIR PARTIDA</h2>
             <div id="qrcode" style="background:white; padding:10px; border-radius:10px; margin:10px;"></div>
             <p style="text-align:center; font-size:0.8rem; color:#aaa;">Escanea con la cámara del otro celular</p>
-            
             <div style="width:100%; border-top:1px solid #333; margin:15px 0; padding-top:15px;">
                 <p style="text-align:center; margin:0 0 5px 0;">O copia el código:</p>
                 <textarea id="share-code-text" style="width:100%; height:60px; font-size:0.7rem; color:#00eaff; border-color:#005555;" readonly></textarea>
                 <button onclick="app.copyCodeToClipboard()" class="btn-start" style="margin-top:10px; padding:10px; font-size:1rem;">COPIAR CÓDIGO</button>
             </div>
-            
             <button onclick="document.getElementById('share-modal').style.display='none'" class="btn-add" style="margin-top:10px;">CERRAR</button>
         </div>
     </div>
