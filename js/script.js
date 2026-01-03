@@ -1,4 +1,4 @@
-/* PRISMA LABS ENGINE v10.0 - DYNAMIC MEMBERS ADDON */
+/* PRISMA LABS ENGINE v12.0 - TOURNAMENT MODE */
 
 const app = {
     mode: 'teams',
@@ -6,7 +6,7 @@ const app = {
     turn: 0,
     goal: 1000,
     
-    // --- AUDIO ENGINE ---
+    // AUDIO ENGINE
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
     tone: (f,t,d) => {
         if(app.audioCtx.state==='suspended') app.audioCtx.resume();
@@ -27,15 +27,14 @@ const app = {
 
     init: () => {
         document.addEventListener('click', ()=>{ if(app.audioCtx.state==='suspended')app.audioCtx.resume(); }, {once:true});
-        app.addRival('A');
-        app.addRival('B');
+        app.addRival(); // A
+        app.addRival(); // B
         
         document.getElementById('btn-add-team').onclick = () => app.addRival();
         document.getElementById('btn-start-game').onclick = app.startGame;
         document.querySelectorAll('.num-btn').forEach(b => { if(b.dataset.val) b.onclick=()=>app.num(b.dataset.val); });
         document.getElementById('btn-undo').onclick = app.undo;
         document.getElementById('btn-ok').onclick = app.submit;
-        document.getElementById('btn-revancha').onclick = () => location.reload();
     },
 
     setMode: (newMode) => {
@@ -44,7 +43,6 @@ const app = {
         document.getElementById('btn-mode-teams').className = `mode-btn ${newMode==='teams'?'active':''}`;
         document.getElementById('btn-mode-solo').className = `mode-btn ${newMode==='solo'?'active':''}`;
         
-        // Ocultar/Mostrar el wrapper de miembros completo
         document.querySelectorAll('.members-wrapper').forEach(el => {
             if(newMode === 'solo') el.classList.add('hidden');
             else el.classList.remove('hidden');
@@ -54,56 +52,59 @@ const app = {
         document.querySelectorAll('.team-name').forEach(el => el.placeholder = placeholder);
     },
 
-    addRival: (forceId) => {
-        app.sfx.tap();
+    // AÑADIR RIVAL (Con opción de precargar datos para la revancha)
+    addRival: (data = null) => {
+        if(!data) app.sfx.tap(); // Solo sonar si es manual
         const list = document.getElementById('team-list');
-        if(list.children.length >= 4) return;
         
-        const currentIds = Array.from(list.children).map(c => c.dataset.id);
-        const allIds = ['A','B','C','D'];
-        let id = forceId || allIds.find(i => !currentIds.includes(i));
-        if (!id) return;
+        const count = list.children.length + 1; 
+        const id = count; 
+        const styleLetters = ['A','B','C','D'];
+        const styleId = styleLetters[(count - 1) % 4]; 
         
         const div = document.createElement('div');
         div.className = 'list-item';
-        div.dataset.id = id;
+        div.dataset.style = styleId; 
         
         const hiddenClass = app.mode === 'solo' ? 'hidden' : '';
-        const ph = app.mode === 'solo' ? 'Nombre del Jugador' : `Nombre Equipo ${id}`;
+        const ph = app.mode === 'solo' ? `Jugador ${id}` : `Equipo ${id}`;
         
-        // NUEVA ESTRUCTURA HTML CON BOTÓN +
+        // Valores precargados (si vienen de una revancha)
+        const valName = data ? data.name : '';
+        const valMembers = data ? data.membersArray : [];
+
         div.innerHTML = `
-            <div class="dot bg-${id}">${id}</div>
+            <div class="dot bg-${styleId}">${id}</div>
             <div class="inputs-col">
-                <input type="text" class="team-name" placeholder="${ph}">
+                <input type="text" class="team-name" placeholder="${ph}" value="${valName}">
                 
                 <div class="members-wrapper ${hiddenClass}">
                     <div class="member-row">
-                        <input type="text" class="input-member-small" placeholder="Jugador 1">
+                        <input type="text" class="input-member-small" placeholder="Participante 1" value="${valMembers[0] || ''}">
                         <button class="btn-add-member" onclick="app.addMemberField(this)">+</button>
                     </div>
                 </div>
-
             </div>
             <button class="btn-delete-row" onclick="app.removeRival(this)">🗑️</button>
         `;
         list.appendChild(div);
+
+        // Si hay más miembros guardados, agregarlos visualmente
+        if(valMembers.length > 1) {
+            const btnPlus = div.querySelector('.btn-add-member');
+            for(let i=1; i<valMembers.length; i++) {
+                app.addMemberField(btnPlus, valMembers[i]);
+            }
+        }
     },
 
-    // --- NUEVA FUNCIÓN: AGREGAR CAMPO DE JUGADOR ---
-    addMemberField: (btn) => {
-        app.sfx.tap();
-        // Encontrar el contenedor de filas de miembros
+    addMemberField: (btn, value = '') => {
+        if(!value) app.sfx.tap();
         const wrapper = btn.closest('.members-wrapper');
-        
-        // Crear una nueva fila solo con input (sin botón +)
         const newRow = document.createElement('div');
         newRow.className = 'member-row';
-        // Calculamos el número de jugador
         const count = wrapper.children.length + 1;
-        newRow.innerHTML = `<input type="text" class="input-member-small" placeholder="Jugador ${count}">`;
-        
-        // Insertar antes de la fila que contiene el botón +
+        newRow.innerHTML = `<input type="text" class="input-member-small" placeholder="Participante ${count}" value="${value}">`;
         wrapper.insertBefore(newRow, btn.parentElement);
     },
 
@@ -119,36 +120,72 @@ const app = {
         const rows = document.querySelectorAll('.list-item');
         app.teams = [];
         
-        rows.forEach(row => {
+        rows.forEach((row, index) => {
             const nameInp = row.querySelector('.team-name');
-            const id = row.dataset.id;
-            let name = nameInp.value.trim();
-            if(!name) name = app.mode === 'solo' ? `JUGADOR ${id}` : `EQUIPO ${id}`;
+            const styleId = row.dataset.style;
+            const realId = index + 1;
             
-            // RECOLECTAR MIEMBROS
+            let name = nameInp.value.trim();
+            if(!name) name = app.mode === 'solo' ? `JUGADOR ${realId}` : `EQUIPO ${realId}`;
+            
+            // Recolectar miembros
             let membersList = "";
+            let membersArray = [];
             if(app.mode === 'teams') {
                 const memberInputs = row.querySelectorAll('.input-member-small');
-                let membersArray = [];
-                // Juntar solo los que tengan texto
                 memberInputs.forEach(mi => {
                     if(mi.value.trim() !== "") membersArray.push(mi.value.trim());
                 });
-                membersList = membersArray.join(", "); // Unirlos con comas
+                membersList = membersArray.join(", ");
             }
             
             app.teams.push({
                 name: name,
                 members: membersList,
+                membersArray: membersArray, // Guardamos el array para poder reconstruirlo
                 score: 0,
-                id: id
+                id: styleId 
             });
         });
 
         app.goal = parseInt(document.getElementById('goal-points').value) || 1000;
         document.getElementById('setup-screen').classList.remove('active');
+        document.getElementById('winner-modal').style.display = 'none'; // Asegurar modal cerrado
         document.getElementById('game-screen').classList.add('active');
+        app.turn = 0;
         app.updateUI();
+    },
+
+    // --- NUEVA LÓGICA DE TORNEO ---
+    rematch: (type) => {
+        app.sfx.ok();
+        
+        // 1. Obtener los equipos actuales
+        let nextTeams = [...app.teams];
+        
+        // 2. Si es "TOP 2", ordenamos por puntaje y cortamos
+        if(type === 'top2') {
+            if(nextTeams.length < 2) return alert("Se necesitan al menos 2 equipos para una final.");
+            // Ordenar de mayor a menor puntaje
+            nextTeams.sort((a,b) => b.score - a.score);
+            // Quedarse solo con los 2 primeros
+            nextTeams = nextTeams.slice(0, 2);
+        }
+
+        // 3. Volver a la pantalla de configuración
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('winner-modal').style.display = 'none';
+        document.getElementById('setup-screen').classList.add('active');
+        
+        // 4. Reconstruir la lista visualmente
+        const list = document.getElementById('team-list');
+        list.innerHTML = ''; // Borrar todo lo viejo
+        
+        nextTeams.forEach(teamData => {
+            // Reiniciar puntaje y volver a crear los inputs con los datos guardados
+            teamData.score = 0;
+            app.addRival(teamData);
+        });
     },
 
     updateUI: () => {
@@ -179,6 +216,7 @@ const app = {
         if(!pts) return;
         app.sfx.ok();
         app.teams[app.turn].score += pts;
+        
         if(app.teams[app.turn].score >= app.goal) {
             app.sfx.win();
             document.getElementById('winner-modal').style.display='flex';
