@@ -19,8 +19,7 @@
                 <button id="btn-mode-solo" class="mode-btn" onclick="app.setMode('solo')">INDIVIDUAL</button>
             </div>
             
-            <div id="team-list">
-                </div>
+            <div id="team-list"></div>
             
             <button id="btn-add-team" class="btn-add">+ AGREGAR RIVAL</button>
             
@@ -35,7 +34,7 @@
     <div id="game-screen" class="screen">
         <div class="header">
             <span id="meta-display" class="header-info">META: 1000</span>
-            <span id="leader-display" class="header-info">LÍDER: -</span>
+            <button id="btn-menu" class="btn-menu" onclick="app.toggleHistory()">☰</button>
         </div>
 
         <div class="active-zone">
@@ -54,9 +53,26 @@
                 <button class="num-btn" data-val="7">7</button>
                 <button class="num-btn" data-val="8">8</button>
                 <button class="num-btn" data-val="9">9</button>
-                <button id="btn-undo" class="num-btn btn-undo">BORRAR</button>
+                <button id="btn-undo-calc" class="num-btn btn-undo">BORRAR</button>
                 <button class="num-btn" data-val="0">0</button>
                 <button id="btn-ok" class="num-btn btn-ok">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal">
+        <div class="history-box">
+            <div class="history-header">
+                <h2>BITÁCORA</h2>
+                <button onclick="app.toggleHistory()" style="background:none; border:none; color:white; font-size:1.5rem;">✕</button>
+            </div>
+            
+            <div id="history-list" class="history-list">
+                <div style="text-align:center; color:#555; padding:20px;">Sin movimientos aún</div>
+            </div>
+
+            <div class="history-footer">
+                <button onclick="app.undoTurn()" class="btn-undo-turn">↩ DESHACER ÚLTIMA JUGADA</button>
             </div>
         </div>
     </div>
@@ -65,7 +81,6 @@
         <h2 style="color:white; letter-spacing:5px; margin-bottom:5px;">¡VICTORIA!</h2>
         <h1 id="w-name" class="winner-name">GANADOR</h1>
         <h3 id="w-score" class="winner-score" style="margin-bottom: 30px;">0 PTS</h3>
-        
         <button onclick="app.rematch('all')" class="btn-revancha">🔄 REVANCHA (TODOS)</button>
         <button onclick="app.rematch('top2')" class="btn-revancha" style="background: gold; color: black; margin-top: 10px;">🏆 FINAL (TOP 1 vs TOP 2)</button>
         <button onclick="location.reload()" class="btn-add" style="margin-top:20px; border:1px solid #555; background:transparent; color:#888;">SALIR / NUEVA</button>
