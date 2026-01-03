@@ -27,6 +27,9 @@
                 <label>META DE PUNTOS</label>
                 <input type="number" id="goal-points" value="1000" inputmode="numeric">
                 <button id="btn-start-game" class="btn-start">INICIAR PARTIDA</button>
+                <div id="import-alert" style="display:none; color:#00eaff; text-align:center; margin-top:10px; font-size:0.9rem;">
+                    📥 Partida recuperada de enlace compartido
+                </div>
             </div>
         </div>
     </div>
@@ -34,7 +37,7 @@
     <div id="game-screen" class="screen">
         <div class="header">
             <span id="meta-display" class="header-info">META: 1000</span>
-            <button id="btn-menu" class="btn-menu" onclick="app.toggleHistory()">☰</button>
+            <button id="btn-menu" class="btn-menu" onclick="app.toggleMenu()">☰</button>
         </div>
 
         <div class="active-zone">
@@ -60,20 +63,34 @@
         </div>
     </div>
 
-    <div id="history-modal" class="modal">
-        <div class="history-box">
-            <div class="history-header">
-                <h2>BITÁCORA</h2>
-                <button onclick="app.toggleHistory()" style="background:none; border:none; color:white; font-size:1.5rem;">✕</button>
+    <div id="menu-modal" class="modal" style="justify-content: flex-end;">
+        <div class="menu-sheet">
+            <div class="menu-header">
+                <h2>CENTRO DE COMANDO</h2>
+                <button onclick="app.toggleMenu()" style="background:none; border:none; color:white; font-size:1.5rem;">✕</button>
             </div>
             
-            <div id="history-list" class="history-list">
-                <div style="text-align:center; color:#555; padding:20px;">Sin movimientos aún</div>
+            <div class="menu-grid">
+                <button onclick="app.toggleSound()" class="menu-opt">🔊 Sonido: <span id="sound-state">ON</span></button>
+                <button onclick="app.shareGame()" class="menu-opt" style="border-color:#00eaff; color:#00eaff;">📲 Transferir Partida</button>
+                <button onclick="app.openEditNames()" class="menu-opt">✏️ Editar Nombres</button>
+                <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000;">♻️ Reiniciar Puntos</button>
             </div>
 
-            <div class="history-footer">
+            <div class="history-section">
+                <h3>BITÁCORA DE MOVIMIENTOS</h3>
+                <div id="history-list" class="history-list"></div>
                 <button onclick="app.undoTurn()" class="btn-undo-turn">↩ DESHACER ÚLTIMA JUGADA</button>
             </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal">
+        <div class="setup-container" style="background:#111; border-radius:20px; height:auto; max-height:80%; width:90%;">
+            <h2>EDITAR EQUIPOS</h2>
+            <div id="edit-list"></div>
+            <button onclick="app.saveNames()" class="btn-start">GUARDAR CAMBIOS</button>
+            <button onclick="document.getElementById('edit-modal').style.display='none'" class="btn-add" style="margin-top:10px;">CANCELAR</button>
         </div>
     </div>
 
