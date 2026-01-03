@@ -1,11 +1,11 @@
-/* PRISMA LABS ENGINE v17.0 - AUDIT LOG & REAL UNDO */
+/* PRISMA LABS ENGINE v17.1 - CLEAN SLATE FIX */
 
 const app = {
     mode: 'teams',
     teams: [],
     turn: 0,
     goal: 1000,
-    historyLog: [], // Aquí guardaremos cada movimiento
+    historyLog: [],
     
     // --- AUDIO ---
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
@@ -29,11 +29,7 @@ const app = {
 
     init: () => {
         document.addEventListener('click', ()=>{ if(app.audioCtx.state==='suspended')app.audioCtx.resume(); }, {once:true});
-        
-        // Wake Lock (Mantener pantalla encendida si el navegador deja)
-        if ('wakeLock' in navigator) {
-            navigator.wakeLock.request('screen').catch(err => console.log('Wake Lock error:', err));
-        }
+        if ('wakeLock' in navigator) { navigator.wakeLock.request('screen').catch(err => console.log(err)); }
 
         app.addRival(); 
         app.addRival();
@@ -41,7 +37,7 @@ const app = {
         document.getElementById('btn-add-team').onclick = () => app.addRival();
         document.getElementById('btn-start-game').onclick = () => { app.sfx.start(); app.startGame(); };
         document.querySelectorAll('.num-btn').forEach(b => { if(b.dataset.val) b.onclick=()=>app.num(b.dataset.val); });
-        document.getElementById('btn-undo-calc').onclick = app.undoCalc; // Borrar solo números
+        document.getElementById('btn-undo-calc').onclick = app.undoCalc;
         document.getElementById('btn-ok').onclick = app.submit;
     },
 
@@ -143,8 +139,7 @@ const app = {
         });
 
         app.goal = parseInt(document.getElementById('goal-points').value) || 1000;
-        app.historyLog = []; // Reiniciar historial
-        
+        app.historyLog = [];
         document.getElementById('setup-screen').classList.remove('active');
         document.getElementById('winner-modal').style.display = 'none';
         document.getElementById('game-screen').classList.add('active');
@@ -152,21 +147,17 @@ const app = {
         app.updateUI();
     },
 
-    // --- LÓGICA DE AUDITORÍA (MENÚ Y HISTORIAL) ---
     toggleHistory: () => {
         app.sfx.tap();
         const modal = document.getElementById('history-modal');
         const list = document.getElementById('history-list');
-        
         if (modal.style.display === 'flex') {
             modal.style.display = 'none';
         } else {
-            // Renderizar lista
             list.innerHTML = '';
             if (app.historyLog.length === 0) {
                 list.innerHTML = '<div style="text-align:center; color:#555; padding:20px;">Sin movimientos aún</div>';
             } else {
-                // Mostrar del más reciente al más antiguo
                 [...app.historyLog].reverse().forEach((log, i) => {
                     const team = app.teams[log.teamIndex];
                     list.innerHTML += `
@@ -184,35 +175,20 @@ const app = {
         }
     },
 
-    // EL VERDADERO DESHACER (UNDO)
     undoTurn: () => {
-        if (app.historyLog.length === 0) {
-            alert("No hay jugadas para deshacer.");
-            return;
-        }
-        
+        if (app.historyLog.length === 0) { alert("No hay jugadas."); return; }
         app.sfx.del();
-        const lastMove = app.historyLog.pop(); // Sacar la última jugada
+        const lastMove = app.historyLog.pop();
         const team = app.teams[lastMove.teamIndex];
-        
-        // 1. Restar puntos
         team.score -= lastMove.points;
-        
-        // 2. Devolver turno al jugador que tiró
         app.turn = lastMove.teamIndex;
-        
-        // 3. Si era un equipo con lista de jugadores, devolver el índice del jugador
         if (team.membersArray.length > 0) {
-            // Retroceder el índice circularmente
             team.currentMemberIdx = (team.currentMemberIdx - 1 + team.membersArray.length) % team.membersArray.length;
         }
-
-        // Actualizar UI y cerrar modal
-        app.toggleHistory(); // Cerrar modal para ver el cambio
+        app.toggleHistory();
         app.updateUI();
     },
 
-    // --- JUEGO ---
     updateUI: () => {
         const t = app.teams[app.turn];
         const card = document.getElementById('turn-card');
@@ -220,7 +196,6 @@ const app = {
         
         let activePlayerText = "";
         let currentPlayerName = "";
-        
         if(t.membersArray.length > 0) {
             currentPlayerName = t.membersArray[t.currentMemberIdx];
             activePlayerText = `<div class="player-members">Lanza: ${currentPlayerName}</div>`;
@@ -237,6 +212,8 @@ const app = {
         document.getElementById('meta-display').textContent = `META: ${app.goal}`;
         const leader = [...app.teams].sort((a,b)=>b.score-a.score)[0];
         document.getElementById('leader-display').textContent = `LÍDER: ${leader.name.substring(0,8)} (${leader.score})`;
+        
+        // ¡LIMPIEZA FORZADA DE PANTALLA!
         document.getElementById('calc-display').textContent = "0";
     },
 
@@ -249,6 +226,7 @@ const app = {
     
     undoCalc: () => { app.sfx.del(); document.getElementById('calc-display').textContent="0"; },
     
+    // --- CORRECCIÓN EN EL SUBMIT ---
     submit: () => {
         let val = document.getElementById('calc-display').textContent;
         let pts = parseInt(val);
@@ -256,15 +234,15 @@ const app = {
 
         app.sfx.ok();
         
+        // 1. Limpiar pantalla VISUALMENTE de inmediato para evitar confusión
+        document.getElementById('calc-display').textContent = "0";
+
         const currentTeam = app.teams[app.turn];
         let currentPlayer = "";
-        
-        // Guardar nombre del jugador actual ANTES de rotar
         if(currentTeam.membersArray.length > 0) {
             currentPlayer = currentTeam.membersArray[currentTeam.currentMemberIdx];
         }
 
-        // --- GUARDAR EN HISTORIAL (AUDITORÍA) ---
         app.historyLog.push({
             teamIndex: app.turn,
             points: pts,
@@ -272,10 +250,8 @@ const app = {
             prevScore: currentTeam.score
         });
 
-        // Sumar
         currentTeam.score += pts;
         
-        // Rotar jugador
         if(currentTeam.membersArray.length > 0) {
             currentTeam.currentMemberIdx = (currentTeam.currentMemberIdx + 1) % currentTeam.membersArray.length;
         }
