@@ -11,24 +11,31 @@ body { font-family: system-ui, -apple-system, sans-serif; background-color: var(
 .setup-container { padding: 20px; overflow-y: auto; height: 100%; display:flex; flex-direction:column; }
 .vs-logo { font-size: 2.5rem; font-weight: 900; background: linear-gradient(to right, #00eaff, #ff0055); -webkit-background-clip: text; color: transparent; margin: 0 auto 15px auto; font-style: italic; }
 
-/* SWITCH DE MODO (NUEVO) */
+/* SWITCH DE MODO */
 .mode-switch-container { display: flex; background: #222; border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid #333; }
 .mode-btn { flex: 1; background: transparent; border: none; color: #888; padding: 10px; font-weight: bold; border-radius: 8px; transition: all 0.2s; }
 .mode-btn.active { background: #444; color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
 
 /* LISTA DE EQUIPOS */
-.list-item { display: flex; align-items: flex-start; margin-bottom: 12px; background: #111; padding: 10px; border-radius: 12px; border: 1px solid #333; transition: all 0.2s; }
+.list-item { display: flex; align-items: flex-start; margin-bottom: 12px; background: #111; padding: 10px; border-radius: 12px; border: 1px solid #333; position: relative; }
 .dot { width: 40px; height: 40px; border-radius: 50%; display:grid; place-items:center; font-weight:bold; color:black; margin-right: 12px; font-size: 1.2rem; flex-shrink: 0; margin-top: 5px; }
 .inputs-col { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.btn-delete-row { background: #330000; color: #ff5555; border: 1px solid #550000; width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1rem; margin-left: 8px; margin-top: 5px; cursor: pointer; }
 
 input { background: #222; border: 1px solid #444; color: white; padding: 12px; border-radius: 6px; width: 100%; font-size: 1rem; outline: none; }
 input:focus { border-color: #00eaff; background: #000; }
-.input-members { font-size: 0.9rem; font-style: italic; color: #aaa; }
-/* Clase para ocultar integrantes en modo solo */
+
+/* --- NUEVO: SISTEMA DE MIEMBROS DINÁMICO --- */
+.members-wrapper { display: flex; flex-direction: column; gap: 5px; margin-top: 5px; }
+.member-row { display: flex; gap: 5px; }
+.input-member-small { padding: 8px 12px; font-size: 0.9rem; flex: 1; background: #1a1a1a; border-color: #333; }
+.btn-add-member { width: 40px; background: #003333; color: #00eaff; border: 1px solid #005555; border-radius: 6px; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: grid; place-items: center; }
+
+/* Clase para ocultar en modo individual */
 .hidden { display: none !important; }
 
 .btn-add { background: #1a1a1a; color: #888; border: 1px dashed #444; width: 100%; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-weight:bold; }
-.btn-start { width: 100%; padding: 18px; background: linear-gradient(45deg, #ff0055, #ff5500); color: white; border-radius: 50px; font-size: 1.3rem; font-weight: bold; border:none; margin-top: 15px; }
+.btn-start { width: 100%; padding: 18px; background: linear-gradient(45deg, #ff0055, #ff5500); color: white; border-radius: 50px; font-size: 1.3rem; font-weight: bold; border:none; margin-top: 15px; margin-bottom: 20px; }
 
 /* JUEGO */
 .header { padding: 10px 15px; display: flex; justify-content: space-between; background: #111; font-size: 0.8rem; color: #888; border-bottom: 1px solid #333; }
@@ -37,7 +44,7 @@ input:focus { border-color: #00eaff; background: #000; }
 
 .player-label { font-size: 0.8rem; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; color: #000; font-weight: 900; align-self: center; margin-bottom: 15px; }
 .player-name { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 900; margin: 0; line-height: 1; color: #fff; overflow:hidden; text-overflow:ellipsis; }
-.player-members { font-size: 1.2rem; color: #aaa; margin-top: 10px; font-style: italic; }
+.player-members { font-size: 1.1rem; color: #aaa; margin-top: 10px; font-style: italic; white-space: pre-wrap; }
 .player-score { font-size: clamp(5rem, 15vw, 7rem); font-family: monospace; font-weight: bold; margin: auto 0; }
 
 /* CALCULADORA */
