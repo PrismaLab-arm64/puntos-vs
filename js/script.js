@@ -1,13 +1,12 @@
-/* PRISMA LABS ENGINE v8.0 - MODO LIBRE vs EQUIPOS */
+/* PRISMA LABS ENGINE v10.0 - DYNAMIC MEMBERS ADDON */
 
 const app = {
-    // ESTADO
-    mode: 'teams', // 'teams' o 'solo'
+    mode: 'teams',
     teams: [],
     turn: 0,
     goal: 1000,
     
-    // AUDIO
+    // --- AUDIO ENGINE ---
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
     tone: (f,t,d) => {
         if(app.audioCtx.state==='suspended') app.audioCtx.resume();
@@ -18,23 +17,19 @@ const app = {
         o.connect(g); g.connect(app.audioCtx.destination);
         o.start(); o.stop(app.audioCtx.currentTime+d);
     },
+    vib: (ms) => { if(navigator.vibrate) navigator.vibrate(ms); },
     sfx: {
-        tap:()=>{app.tone(800,'square',0.05); if(navigator.vibrate)navigator.vibrate(15);},
-        ok:()=>{app.tone(500,'sine',0.1);setTimeout(()=>app.tone(1000,'square',0.1),80);if(navigator.vibrate)navigator.vibrate(40);},
-        del:()=>{app.tone(150,'sawtooth',0.15);if(navigator.vibrate)navigator.vibrate(30);},
-        win:()=>{[523,659,783,1046,783,1046].forEach((n,i)=>setTimeout(()=>app.tone(n,'square',0.2),i*150));if(navigator.vibrate)navigator.vibrate([100,50,100,50,500]);}
+        tap:()=>{app.tone(800,'square',0.05); app.vib(50);},
+        ok:()=>{app.tone(500,'sine',0.1);setTimeout(()=>app.tone(1000,'square',0.1),80); app.vib(80);},
+        del:()=>{app.tone(150,'sawtooth',0.15); app.vib(60);},
+        win:()=>{[523,659,783,1046,783,1046].forEach((n,i)=>setTimeout(()=>app.tone(n,'square',0.2),i*150)); app.vib([100,50,100,50,500]);}
     },
 
-    // INICIO
     init: () => {
-        // Desbloqueo de audio al primer toque
         document.addEventListener('click', ()=>{ if(app.audioCtx.state==='suspended')app.audioCtx.resume(); }, {once:true});
-        
-        // Agregar 2 rivales base
         app.addRival('A');
         app.addRival('B');
         
-        // Conectar botones
         document.getElementById('btn-add-team').onclick = () => app.addRival();
         document.getElementById('btn-start-game').onclick = app.startGame;
         document.querySelectorAll('.num-btn').forEach(b => { if(b.dataset.val) b.onclick=()=>app.num(b.dataset.val); });
@@ -43,22 +38,18 @@ const app = {
         document.getElementById('btn-revancha').onclick = () => location.reload();
     },
 
-    // CAMBIAR MODO (LA MAGIA)
     setMode: (newMode) => {
         app.sfx.tap();
         app.mode = newMode;
-        
-        // Actualizar botones visualmente
         document.getElementById('btn-mode-teams').className = `mode-btn ${newMode==='teams'?'active':''}`;
         document.getElementById('btn-mode-solo').className = `mode-btn ${newMode==='solo'?'active':''}`;
         
-        // Mostrar u ocultar campos de integrantes
-        document.querySelectorAll('.input-members').forEach(el => {
+        // Ocultar/Mostrar el wrapper de miembros completo
+        document.querySelectorAll('.members-wrapper').forEach(el => {
             if(newMode === 'solo') el.classList.add('hidden');
             else el.classList.remove('hidden');
         });
         
-        // Cambiar Placeholder
         const placeholder = newMode === 'solo' ? 'Nombre del Jugador' : 'Nombre del Equipo';
         document.querySelectorAll('.team-name').forEach(el => el.placeholder = placeholder);
     },
@@ -68,23 +59,59 @@ const app = {
         const list = document.getElementById('team-list');
         if(list.children.length >= 4) return;
         
-        const ids = ['A','B','C','D'];
-        const id = forceId || ids[list.children.length];
+        const currentIds = Array.from(list.children).map(c => c.dataset.id);
+        const allIds = ['A','B','C','D'];
+        let id = forceId || allIds.find(i => !currentIds.includes(i));
+        if (!id) return;
         
         const div = document.createElement('div');
         div.className = 'list-item';
-        // Determinar visibilidad según el modo actual
+        div.dataset.id = id;
+        
         const hiddenClass = app.mode === 'solo' ? 'hidden' : '';
         const ph = app.mode === 'solo' ? 'Nombre del Jugador' : `Nombre Equipo ${id}`;
         
+        // NUEVA ESTRUCTURA HTML CON BOTÓN +
         div.innerHTML = `
             <div class="dot bg-${id}">${id}</div>
             <div class="inputs-col">
-                <input type="text" class="team-name" data-id="${id}" placeholder="${ph}">
-                <input type="text" class="input-members ${hiddenClass}" placeholder="Integrantes (Ej: Juan, Pepe...)">
+                <input type="text" class="team-name" placeholder="${ph}">
+                
+                <div class="members-wrapper ${hiddenClass}">
+                    <div class="member-row">
+                        <input type="text" class="input-member-small" placeholder="Jugador 1">
+                        <button class="btn-add-member" onclick="app.addMemberField(this)">+</button>
+                    </div>
+                </div>
+
             </div>
+            <button class="btn-delete-row" onclick="app.removeRival(this)">🗑️</button>
         `;
         list.appendChild(div);
+    },
+
+    // --- NUEVA FUNCIÓN: AGREGAR CAMPO DE JUGADOR ---
+    addMemberField: (btn) => {
+        app.sfx.tap();
+        // Encontrar el contenedor de filas de miembros
+        const wrapper = btn.closest('.members-wrapper');
+        
+        // Crear una nueva fila solo con input (sin botón +)
+        const newRow = document.createElement('div');
+        newRow.className = 'member-row';
+        // Calculamos el número de jugador
+        const count = wrapper.children.length + 1;
+        newRow.innerHTML = `<input type="text" class="input-member-small" placeholder="Jugador ${count}">`;
+        
+        // Insertar antes de la fila que contiene el botón +
+        wrapper.insertBefore(newRow, btn.parentElement);
+    },
+
+    removeRival: (btn) => {
+        app.sfx.del();
+        const list = document.getElementById('team-list');
+        if(list.children.length > 1) btn.parentElement.remove();
+        else alert("¡Debe haber al menos 1 participante!");
     },
 
     startGame: () => {
@@ -94,16 +121,25 @@ const app = {
         
         rows.forEach(row => {
             const nameInp = row.querySelector('.team-name');
-            const memInp = row.querySelector('.input-members');
-            const id = nameInp.dataset.id;
-            
-            // Lógica inteligente de nombres
+            const id = row.dataset.id;
             let name = nameInp.value.trim();
             if(!name) name = app.mode === 'solo' ? `JUGADOR ${id}` : `EQUIPO ${id}`;
             
+            // RECOLECTAR MIEMBROS
+            let membersList = "";
+            if(app.mode === 'teams') {
+                const memberInputs = row.querySelectorAll('.input-member-small');
+                let membersArray = [];
+                // Juntar solo los que tengan texto
+                memberInputs.forEach(mi => {
+                    if(mi.value.trim() !== "") membersArray.push(mi.value.trim());
+                });
+                membersList = membersArray.join(", "); // Unirlos con comas
+            }
+            
             app.teams.push({
                 name: name,
-                members: app.mode === 'teams' ? memInp.value.trim() : null,
+                members: membersList,
                 score: 0,
                 id: id
             });
@@ -118,7 +154,6 @@ const app = {
     updateUI: () => {
         const t = app.teams[app.turn];
         const card = document.getElementById('turn-card');
-        
         card.className = `turn-card b-${t.id}`;
         card.innerHTML = `
             <span class="player-label bg-${t.id}">TURNO ACTUAL</span>
@@ -126,7 +161,6 @@ const app = {
             ${t.members ? `<div class="player-members">(${t.members})</div>` : ''}
             <div class="player-score">${t.score}</div>
         `;
-        
         document.getElementById('meta-display').textContent = `META: ${app.goal}`;
         const leader = [...app.teams].sort((a,b)=>b.score-a.score)[0];
         document.getElementById('leader-display').textContent = `LÍDER: ${leader.name.substring(0,8)} (${leader.score})`;
@@ -145,7 +179,6 @@ const app = {
         if(!pts) return;
         app.sfx.ok();
         app.teams[app.turn].score += pts;
-        
         if(app.teams[app.turn].score >= app.goal) {
             app.sfx.win();
             document.getElementById('winner-modal').style.display='flex';
@@ -159,5 +192,4 @@ const app = {
     }
 };
 
-// Arrancar
 document.addEventListener('DOMContentLoaded', app.init);
