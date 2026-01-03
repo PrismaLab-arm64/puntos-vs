@@ -13,12 +13,16 @@
     <div id="setup-screen" class="screen active">
         <div class="setup-container">
             <h1 class="vs-logo">PUNTOS VS</h1>
-            <p class="version-tag">v6.0 SYSTEM READY</p>
+            
+            <div class="mode-switch-container">
+                <button id="btn-mode-teams" class="mode-btn active" onclick="app.setMode('teams')">EQUIPOS</button>
+                <button id="btn-mode-solo" class="mode-btn" onclick="app.setMode('solo')">INDIVIDUAL</button>
+            </div>
             
             <div id="team-list">
                 </div>
             
-            <button id="btn-add-team" class="btn-add">+</button>
+            <button id="btn-add-team" class="btn-add">+ AGREGAR RIVAL</button>
             
             <div style="margin-top: auto;">
                 <label>META DE PUNTOS</label>
@@ -35,8 +39,7 @@
         </div>
 
         <div class="active-zone">
-            <div id="turn-card" class="turn-card">
-                </div>
+            <div id="turn-card" class="turn-card"></div>
         </div>
 
         <div class="controls">
@@ -60,8 +63,8 @@
 
     <div id="winner-modal" class="modal">
         <h2 style="color:white; letter-spacing:5px;">VICTORIA</h2>
-        <h1 id="w-name" class="winner-name">EQUIPO GANADOR</h1>
-        <h3 id="w-score" class="winner-score">0 PUNTOS</h3>
+        <h1 id="w-name" class="winner-name">GANADOR</h1>
+        <h3 id="w-score" class="winner-score">0 PTS</h3>
         <button id="btn-revancha" class="btn-revancha">NUEVA PARTIDA</button>
     </div>
 
