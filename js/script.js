@@ -1,4 +1,4 @@
-/* PRISMA LABS ENGINE v19.0 - QR TRANSFER & COMPRESSION */
+/* PRISMA LABS ENGINE v20.0 - GOAL CHANGER RESTORED */
 
 const app = {
     mode: 'teams',
@@ -33,7 +33,6 @@ const app = {
         document.addEventListener('click', ()=>{ if(app.audioCtx.state==='suspended')app.audioCtx.resume(); }, {once:true});
         if ('wakeLock' in navigator) { navigator.wakeLock.request('screen').catch(err => console.log(err)); }
 
-        // CHECK IMPORTACIÓN DE URL
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('data')) {
             app.loadGameFromCode(urlParams.get('data'));
@@ -49,32 +48,39 @@ const app = {
         document.getElementById('btn-ok').onclick = app.submit;
     },
 
-    // --- SISTEMA DE TRANSFERENCIA (NFC VISUAL / QR) ---
+    // --- NUEVO: CAMBIAR META EN CALIENTE ---
+    editGoal: () => {
+        app.sfx.tap();
+        const newGoal = prompt("Nueva meta de puntos:", app.goal);
+        
+        if (newGoal && !isNaN(newGoal) && newGoal > 0) {
+            app.goal = parseInt(newGoal);
+            app.updateUI(); // Actualizar pantalla de juego
+            app.toggleMenu(); // Cerrar menú
+            app.sfx.ok(); // Confirmar con sonido
+        }
+    },
+
+    // --- TRANSFERENCIA ---
     openShareModal: () => {
         app.sfx.tap();
-        
-        // 1. Minificar datos para que el link sea corto
-        // t:teams, n:name, s:score, m:members, i:id, h:history, g:goal, tu:turn
         const miniTeams = app.teams.map(t => ({
             n: t.name,
             s: t.score,
             i: t.id,
-            m: t.membersArray // Guardamos solo el array, es más corto
+            m: t.membersArray 
         }));
-
         const miniState = {
             t: miniTeams,
             tu: app.turn,
             g: app.goal,
-            h: app.historyLog.map(l => ({ ti: l.teamIndex, p: l.points, pn: l.playerName })), // Minificar log
+            h: app.historyLog.map(l => ({ ti: l.teamIndex, p: l.points, pn: l.playerName })),
             mo: app.mode
         };
-
         const jsonStr = JSON.stringify(miniState);
         const b64 = btoa(unescape(encodeURIComponent(jsonStr)));
         const fullUrl = `${window.location.origin}${window.location.pathname}?data=${b64}`;
 
-        // 2. Generar QR
         document.getElementById('qrcode').innerHTML = "";
         try {
             new QRCode(document.getElementById("qrcode"), {
@@ -89,10 +95,7 @@ const app = {
             document.getElementById('qrcode').innerText = "QR no disponible offline. Usa el código.";
         }
 
-        // 3. Mostrar Código Texto
         document.getElementById('share-code-text').value = b64;
-        
-        // 4. Abrir Modal
         document.getElementById('menu-modal').style.display = 'none';
         document.getElementById('share-modal').style.display = 'flex';
     },
@@ -102,7 +105,7 @@ const app = {
         copyText.select();
         copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
-        alert("¡Código copiado! Envíalo por WhatsApp y que lo peguen en 'Recuperar Manual'.");
+        alert("¡Código copiado! Pégalo en el otro dispositivo.");
     },
 
     manualImport: () => {
@@ -116,8 +119,6 @@ const app = {
         try {
             const jsonStr = decodeURIComponent(escape(atob(b64)));
             const data = JSON.parse(jsonStr);
-            
-            // DESCOMPRIMIR Y CARGAR
             app.teams = data.t.map(t => ({
                 name: t.n,
                 score: t.s,
@@ -126,35 +127,28 @@ const app = {
                 members: (t.m || []).join(', '),
                 currentMemberIdx: 0
             }));
-            
             app.turn = data.tu;
             app.goal = data.g;
             app.mode = data.mo || 'teams';
-            
-            // Reconstruir historial
             app.historyLog = (data.h || []).map(l => ({
                 teamIndex: l.ti,
                 points: l.p,
                 playerName: l.pn
             }));
             
-            // UI
             document.getElementById('import-alert').style.display = 'block';
             document.getElementById('setup-screen').classList.remove('active');
             document.getElementById('game-screen').classList.add('active');
             app.updateUI();
-            
-            // Limpiar URL
             window.history.replaceState({}, document.title, window.location.pathname);
             app.sfx.ok();
-            
         } catch (e) {
             console.error(e);
-            alert("El código no es válido o está dañado.");
+            alert("Código inválido.");
         }
     },
 
-    // --- FUNCIONES EXISTENTES ---
+    // --- EDICIÓN NOMBRES ---
     openEditNames: () => {
         const modal = document.getElementById('edit-modal');
         const list = document.getElementById('edit-list');
@@ -187,7 +181,7 @@ const app = {
         app.sfx.ok();
     },
 
-    // CORE FUNCTIONS
+    // --- CORE ---
     setMode: (newMode) => {
         app.sfx.tap();
         app.mode = newMode;
@@ -278,10 +272,14 @@ const app = {
         app.updateUI();
     },
 
+    // MENU UI UPDATES
     toggleMenu: () => {
         app.sfx.tap();
         const modal = document.getElementById('menu-modal');
         const list = document.getElementById('history-list');
+        // Actualizar visualización de la Meta en el botón
+        document.getElementById('menu-goal-display').innerText = app.goal;
+
         if (modal.style.display === 'flex') {
             modal.style.display = 'none';
         } else {
