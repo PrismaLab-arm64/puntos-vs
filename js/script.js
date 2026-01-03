@@ -1,4 +1,4 @@
-     /* PRISMA LABS ENGINE v14.0 - RETRO CONSOLE AUDIO FX */
+/* PRISMA LABS ENGINE v16.0 - ZERO POINTS ALLOWED */
 
 const app = {
     mode: 'teams',
@@ -6,98 +6,55 @@ const app = {
     turn: 0,
     goal: 1000,
     
-    // --- MOTOR DE AUDIO AVANZADO (SINTETIZADOR) ---
+    // --- AUDIO ENGINE ---
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
     
-    // Tono simple
     tone: (f, type, duration, vol = 0.1) => {
         if(app.audioCtx.state === 'suspended') app.audioCtx.resume();
         const o = app.audioCtx.createOscillator();
         const g = app.audioCtx.createGain();
         o.type = type; 
         o.frequency.setValueAtTime(f, app.audioCtx.currentTime);
-        
         g.gain.setValueAtTime(vol, app.audioCtx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.0001, app.audioCtx.currentTime + duration);
-        
-        o.connect(g); 
-        g.connect(app.audioCtx.destination);
-        o.start(); 
-        o.stop(app.audioCtx.currentTime + duration);
-    },
-
-    // Deslizamiento (para efectos láser o error)
-    slide: (startF, endF, type, duration) => {
-        if(app.audioCtx.state === 'suspended') app.audioCtx.resume();
-        const o = app.audioCtx.createOscillator();
-        const g = app.audioCtx.createGain();
-        o.type = type;
-        o.frequency.setValueAtTime(startF, app.audioCtx.currentTime);
-        o.frequency.exponentialRampToValueAtTime(endF, app.audioCtx.currentTime + duration);
-        
-        g.gain.setValueAtTime(0.1, app.audioCtx.currentTime);
-        g.gain.linearRampToValueAtTime(0.001, app.audioCtx.currentTime + duration);
-        
         o.connect(g); g.connect(app.audioCtx.destination);
         o.start(); o.stop(app.audioCtx.currentTime + duration);
     },
 
     vib: (ms) => { if(navigator.vibrate) navigator.vibrate(ms); },
 
-    // --- EFECTOS DE SONIDO (PACK GAMEBOY) ---
+    // --- EFECTOS ---
     sfx: {
-        // Tap: Un "blip" cuadrado más largo y con cuerpo
-        tap: () => { 
-            app.tone(400, 'square', 0.15); 
-            app.vib(30); 
-        },
-        
-        // Error/Borrar: Un sonido de "caída" o "fallo"
-        del: () => { 
-            app.slide(300, 50, 'sawtooth', 0.25); 
-            app.vib(50); 
-        },
-        
-        // Start: Arpegio ascendente clásico (Tu-ru-rup!)
+        tap: () => { app.tone(400, 'square', 0.1); app.vib(30); },
+        del: () => { app.tone(150, 'sawtooth', 0.2); app.vib(50); }, // Sonido simple de borrar
         start: () => {
-            const now = app.audioCtx.currentTime;
-            [440, 554, 659, 880].forEach((f, i) => { // Acorde La Mayor
-                setTimeout(() => app.tone(f, 'square', 0.2), i * 100);
-            });
-            app.vib([50, 50, 50, 50]);
+            [440, 554, 659, 880].forEach((f, i) => setTimeout(() => app.tone(f, 'square', 0.2), i * 100));
+            app.vib([50, 50, 50]);
         },
-
-        // OK / Puntos: El clásico sonido de "Moneda" (Coin)
         ok: () => {
-            // Tono 1 (Si) -> Tono 2 (Mi alto) rápido
             app.tone(987, 'square', 0.1); 
             setTimeout(() => app.tone(1318, 'square', 0.4), 80); 
             app.vib(80);
         },
-
-        // Victoria: Melodía triunfal tipo Final Fantasy (más lenta)
         win: () => {
             const melody = [523, 523, 523, 523, 415, 466, 523, 0, 466, 523];
             const rhythm = [150, 150, 150, 400, 400, 400, 300, 100, 150, 800];
             let time = 0;
             melody.forEach((note, i) => {
-                setTimeout(() => {
-                    if (note > 0) app.tone(note, 'square', 0.3);
-                }, time);
+                setTimeout(() => { if (note > 0) app.tone(note, 'square', 0.3); }, time);
                 time += rhythm[i];
             });
             app.vib([100, 50, 100, 50, 100, 50, 500]);
         }
     },
 
-    // --- INICIALIZACIÓN ---
     init: () => {
         document.addEventListener('click', ()=>{ if(app.audioCtx.state==='suspended')app.audioCtx.resume(); }, {once:true});
         app.addRival(); 
         app.addRival();
         
         document.getElementById('btn-add-team').onclick = () => app.addRival();
-        document.getElementById('btn-start-game').onclick = () => { app.sfx.start(); app.startGame(); }; // Sonido Start añadido
+        document.getElementById('btn-start-game').onclick = () => { app.sfx.start(); app.startGame(); };
         document.querySelectorAll('.num-btn').forEach(b => { if(b.dataset.val) b.onclick=()=>app.num(b.dataset.val); });
         document.getElementById('btn-undo').onclick = app.undo;
         document.getElementById('btn-ok').onclick = app.submit;
@@ -175,15 +132,12 @@ const app = {
     },
 
     startGame: () => {
-        // El sonido se activa en el botón onclick, no aquí, para evitar doble sonido
         const rows = document.querySelectorAll('.list-item');
         app.teams = [];
-        
         rows.forEach((row, index) => {
             const nameInp = row.querySelector('.team-name');
             const styleId = row.dataset.style;
             const realId = index + 1;
-            
             let name = nameInp.value.trim();
             if(!name) name = app.mode === 'solo' ? `JUGADOR ${realId}` : `EQUIPO ${realId}`;
             
@@ -194,7 +148,6 @@ const app = {
                     if(mi.value.trim() !== "") membersArray.push(mi.value.trim());
                 });
             }
-            
             app.teams.push({
                 name: name,
                 membersArray: membersArray,
@@ -265,28 +218,42 @@ const app = {
     
     undo: () => { app.sfx.del(); document.getElementById('calc-display').textContent="0"; },
     
+    // --- LÓGICA DE ENVÍO DE PUNTOS ---
     submit: () => {
-        const pts = parseInt(document.getElementById('calc-display').textContent);
-        if(!pts) return;
-        
-        app.sfx.ok(); // SONIDO DE MONEDA AQUÍ
+        // Leemos el valor, si está vacío o es raro, asumimos 0
+        let val = document.getElementById('calc-display').textContent;
+        let pts = parseInt(val);
+        if (isNaN(pts)) pts = 0;
+
+        // AQUÍ ESTABA EL ERROR: Antes había un "if(!pts) return" que bloqueaba el 0.
+        // Ya lo quitamos. Ahora el código sigue fluyendo.
+
+        app.sfx.ok(); // Sonará "moneda" confirmando el pase
         
         app.teams[app.turn].score += pts;
+        
+        // Rotar jugador dentro del equipo
         const t = app.teams[app.turn];
         if(t.membersArray.length > 0) {
             t.currentMemberIdx = (t.currentMemberIdx + 1) % t.membersArray.length;
         }
 
         if(app.teams[app.turn].score >= app.goal) {
-            app.sfx.win(); // FANFARRIA FINAL
-            document.getElementById('winner-modal').style.display='flex';
-            document.getElementById('w-name').textContent = app.teams[app.turn].name;
-            document.getElementById('w-name').className = `winner-name text-${app.teams[app.turn].id}`;
-            document.getElementById('w-score').textContent = `${app.teams[app.turn].score} PTS`;
+            app.showVictoryScreen();
         } else {
             app.turn = (app.turn + 1) % app.teams.length;
             app.updateUI();
         }
+    },
+
+    showVictoryScreen: () => {
+        const winner = app.teams[app.turn];
+        const modal = document.getElementById('winner-modal');
+        app.sfx.win();
+        document.getElementById('w-name').textContent = winner.name;
+        document.getElementById('w-name').className = `winner-name text-${winner.id}`;
+        document.getElementById('w-score').textContent = `${winner.score} PTS`;
+        modal.style.display = 'flex';
     }
 };
 
