@@ -1,4 +1,4 @@
-/* PRISMA LABS ENGINE v12.0 - TOURNAMENT MODE */
+     /* PRISMA LABS ENGINE v14.0 - RETRO CONSOLE AUDIO FX */
 
 const app = {
     mode: 'teams',
@@ -6,32 +6,98 @@ const app = {
     turn: 0,
     goal: 1000,
     
-    // AUDIO ENGINE
+    // --- MOTOR DE AUDIO AVANZADO (SINTETIZADOR) ---
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
-    tone: (f,t,d) => {
-        if(app.audioCtx.state==='suspended') app.audioCtx.resume();
-        const o=app.audioCtx.createOscillator(), g=app.audioCtx.createGain();
-        o.type=t; o.frequency.value=f;
-        g.gain.setValueAtTime(0.1, app.audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.0001, app.audioCtx.currentTime+d);
-        o.connect(g); g.connect(app.audioCtx.destination);
-        o.start(); o.stop(app.audioCtx.currentTime+d);
-    },
-    vib: (ms) => { if(navigator.vibrate) navigator.vibrate(ms); },
-    sfx: {
-        tap:()=>{app.tone(800,'square',0.05); app.vib(50);},
-        ok:()=>{app.tone(500,'sine',0.1);setTimeout(()=>app.tone(1000,'square',0.1),80); app.vib(80);},
-        del:()=>{app.tone(150,'sawtooth',0.15); app.vib(60);},
-        win:()=>{[523,659,783,1046,783,1046].forEach((n,i)=>setTimeout(()=>app.tone(n,'square',0.2),i*150)); app.vib([100,50,100,50,500]);}
+    
+    // Tono simple
+    tone: (f, type, duration, vol = 0.1) => {
+        if(app.audioCtx.state === 'suspended') app.audioCtx.resume();
+        const o = app.audioCtx.createOscillator();
+        const g = app.audioCtx.createGain();
+        o.type = type; 
+        o.frequency.setValueAtTime(f, app.audioCtx.currentTime);
+        
+        g.gain.setValueAtTime(vol, app.audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.0001, app.audioCtx.currentTime + duration);
+        
+        o.connect(g); 
+        g.connect(app.audioCtx.destination);
+        o.start(); 
+        o.stop(app.audioCtx.currentTime + duration);
     },
 
+    // Deslizamiento (para efectos láser o error)
+    slide: (startF, endF, type, duration) => {
+        if(app.audioCtx.state === 'suspended') app.audioCtx.resume();
+        const o = app.audioCtx.createOscillator();
+        const g = app.audioCtx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(startF, app.audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(endF, app.audioCtx.currentTime + duration);
+        
+        g.gain.setValueAtTime(0.1, app.audioCtx.currentTime);
+        g.gain.linearRampToValueAtTime(0.001, app.audioCtx.currentTime + duration);
+        
+        o.connect(g); g.connect(app.audioCtx.destination);
+        o.start(); o.stop(app.audioCtx.currentTime + duration);
+    },
+
+    vib: (ms) => { if(navigator.vibrate) navigator.vibrate(ms); },
+
+    // --- EFECTOS DE SONIDO (PACK GAMEBOY) ---
+    sfx: {
+        // Tap: Un "blip" cuadrado más largo y con cuerpo
+        tap: () => { 
+            app.tone(400, 'square', 0.15); 
+            app.vib(30); 
+        },
+        
+        // Error/Borrar: Un sonido de "caída" o "fallo"
+        del: () => { 
+            app.slide(300, 50, 'sawtooth', 0.25); 
+            app.vib(50); 
+        },
+        
+        // Start: Arpegio ascendente clásico (Tu-ru-rup!)
+        start: () => {
+            const now = app.audioCtx.currentTime;
+            [440, 554, 659, 880].forEach((f, i) => { // Acorde La Mayor
+                setTimeout(() => app.tone(f, 'square', 0.2), i * 100);
+            });
+            app.vib([50, 50, 50, 50]);
+        },
+
+        // OK / Puntos: El clásico sonido de "Moneda" (Coin)
+        ok: () => {
+            // Tono 1 (Si) -> Tono 2 (Mi alto) rápido
+            app.tone(987, 'square', 0.1); 
+            setTimeout(() => app.tone(1318, 'square', 0.4), 80); 
+            app.vib(80);
+        },
+
+        // Victoria: Melodía triunfal tipo Final Fantasy (más lenta)
+        win: () => {
+            const melody = [523, 523, 523, 523, 415, 466, 523, 0, 466, 523];
+            const rhythm = [150, 150, 150, 400, 400, 400, 300, 100, 150, 800];
+            let time = 0;
+            melody.forEach((note, i) => {
+                setTimeout(() => {
+                    if (note > 0) app.tone(note, 'square', 0.3);
+                }, time);
+                time += rhythm[i];
+            });
+            app.vib([100, 50, 100, 50, 100, 50, 500]);
+        }
+    },
+
+    // --- INICIALIZACIÓN ---
     init: () => {
         document.addEventListener('click', ()=>{ if(app.audioCtx.state==='suspended')app.audioCtx.resume(); }, {once:true});
-        app.addRival(); // A
-        app.addRival(); // B
+        app.addRival(); 
+        app.addRival();
         
         document.getElementById('btn-add-team').onclick = () => app.addRival();
-        document.getElementById('btn-start-game').onclick = app.startGame;
+        document.getElementById('btn-start-game').onclick = () => { app.sfx.start(); app.startGame(); }; // Sonido Start añadido
         document.querySelectorAll('.num-btn').forEach(b => { if(b.dataset.val) b.onclick=()=>app.num(b.dataset.val); });
         document.getElementById('btn-undo').onclick = app.undo;
         document.getElementById('btn-ok').onclick = app.submit;
@@ -42,21 +108,17 @@ const app = {
         app.mode = newMode;
         document.getElementById('btn-mode-teams').className = `mode-btn ${newMode==='teams'?'active':''}`;
         document.getElementById('btn-mode-solo').className = `mode-btn ${newMode==='solo'?'active':''}`;
-        
         document.querySelectorAll('.members-wrapper').forEach(el => {
             if(newMode === 'solo') el.classList.add('hidden');
             else el.classList.remove('hidden');
         });
-        
         const placeholder = newMode === 'solo' ? 'Nombre del Jugador' : 'Nombre del Equipo';
         document.querySelectorAll('.team-name').forEach(el => el.placeholder = placeholder);
     },
 
-    // AÑADIR RIVAL (Con opción de precargar datos para la revancha)
     addRival: (data = null) => {
-        if(!data) app.sfx.tap(); // Solo sonar si es manual
+        if(!data) app.sfx.tap();
         const list = document.getElementById('team-list');
-        
         const count = list.children.length + 1; 
         const id = count; 
         const styleLetters = ['A','B','C','D'];
@@ -69,7 +131,6 @@ const app = {
         const hiddenClass = app.mode === 'solo' ? 'hidden' : '';
         const ph = app.mode === 'solo' ? `Jugador ${id}` : `Equipo ${id}`;
         
-        // Valores precargados (si vienen de una revancha)
         const valName = data ? data.name : '';
         const valMembers = data ? data.membersArray : [];
 
@@ -77,7 +138,6 @@ const app = {
             <div class="dot bg-${styleId}">${id}</div>
             <div class="inputs-col">
                 <input type="text" class="team-name" placeholder="${ph}" value="${valName}">
-                
                 <div class="members-wrapper ${hiddenClass}">
                     <div class="member-row">
                         <input type="text" class="input-member-small" placeholder="Participante 1" value="${valMembers[0] || ''}">
@@ -89,7 +149,6 @@ const app = {
         `;
         list.appendChild(div);
 
-        // Si hay más miembros guardados, agregarlos visualmente
         if(valMembers.length > 1) {
             const btnPlus = div.querySelector('.btn-add-member');
             for(let i=1; i<valMembers.length; i++) {
@@ -116,7 +175,7 @@ const app = {
     },
 
     startGame: () => {
-        app.sfx.ok();
+        // El sonido se activa en el botón onclick, no aquí, para evitar doble sonido
         const rows = document.querySelectorAll('.list-item');
         app.teams = [];
         
@@ -128,21 +187,18 @@ const app = {
             let name = nameInp.value.trim();
             if(!name) name = app.mode === 'solo' ? `JUGADOR ${realId}` : `EQUIPO ${realId}`;
             
-            // Recolectar miembros
-            let membersList = "";
             let membersArray = [];
             if(app.mode === 'teams') {
                 const memberInputs = row.querySelectorAll('.input-member-small');
                 memberInputs.forEach(mi => {
                     if(mi.value.trim() !== "") membersArray.push(mi.value.trim());
                 });
-                membersList = membersArray.join(", ");
             }
             
             app.teams.push({
                 name: name,
-                members: membersList,
-                membersArray: membersArray, // Guardamos el array para poder reconstruirlo
+                membersArray: membersArray,
+                currentMemberIdx: 0, 
                 score: 0,
                 id: styleId 
             });
@@ -150,39 +206,26 @@ const app = {
 
         app.goal = parseInt(document.getElementById('goal-points').value) || 1000;
         document.getElementById('setup-screen').classList.remove('active');
-        document.getElementById('winner-modal').style.display = 'none'; // Asegurar modal cerrado
+        document.getElementById('winner-modal').style.display = 'none';
         document.getElementById('game-screen').classList.add('active');
         app.turn = 0;
         app.updateUI();
     },
 
-    // --- NUEVA LÓGICA DE TORNEO ---
     rematch: (type) => {
         app.sfx.ok();
-        
-        // 1. Obtener los equipos actuales
         let nextTeams = [...app.teams];
-        
-        // 2. Si es "TOP 2", ordenamos por puntaje y cortamos
         if(type === 'top2') {
-            if(nextTeams.length < 2) return alert("Se necesitan al menos 2 equipos para una final.");
-            // Ordenar de mayor a menor puntaje
+            if(nextTeams.length < 2) return alert("Se necesitan al menos 2 equipos.");
             nextTeams.sort((a,b) => b.score - a.score);
-            // Quedarse solo con los 2 primeros
             nextTeams = nextTeams.slice(0, 2);
         }
-
-        // 3. Volver a la pantalla de configuración
         document.getElementById('game-screen').classList.remove('active');
         document.getElementById('winner-modal').style.display = 'none';
         document.getElementById('setup-screen').classList.add('active');
-        
-        // 4. Reconstruir la lista visualmente
         const list = document.getElementById('team-list');
-        list.innerHTML = ''; // Borrar todo lo viejo
-        
+        list.innerHTML = ''; 
         nextTeams.forEach(teamData => {
-            // Reiniciar puntaje y volver a crear los inputs con los datos guardados
             teamData.score = 0;
             app.addRival(teamData);
         });
@@ -191,11 +234,20 @@ const app = {
     updateUI: () => {
         const t = app.teams[app.turn];
         const card = document.getElementById('turn-card');
-        card.className = `turn-card b-${t.id}`;
+        card.className = `turn-card pulse-anim b-${t.id}`;
+        
+        let activePlayerText = "";
+        if(t.membersArray.length > 0) {
+            const memberName = t.membersArray[t.currentMemberIdx];
+            activePlayerText = `<div class="player-members">Lanza: ${memberName}</div>`;
+        } else if (app.mode === 'teams') {
+            activePlayerText = `<div class="player-members" style="opacity:0.5">(Sin lista)</div>`;
+        }
+
         card.innerHTML = `
             <span class="player-label bg-${t.id}">TURNO ACTUAL</span>
             <div class="player-name text-${t.id}">${t.name}</div>
-            ${t.members ? `<div class="player-members">(${t.members})</div>` : ''}
+            ${activePlayerText}
             <div class="player-score">${t.score}</div>
         `;
         document.getElementById('meta-display').textContent = `META: ${app.goal}`;
@@ -210,15 +262,23 @@ const app = {
         if(d.textContent==='0') d.textContent='';
         if(d.textContent.length<6) d.textContent+=v;
     },
+    
     undo: () => { app.sfx.del(); document.getElementById('calc-display').textContent="0"; },
+    
     submit: () => {
         const pts = parseInt(document.getElementById('calc-display').textContent);
         if(!pts) return;
-        app.sfx.ok();
-        app.teams[app.turn].score += pts;
         
+        app.sfx.ok(); // SONIDO DE MONEDA AQUÍ
+        
+        app.teams[app.turn].score += pts;
+        const t = app.teams[app.turn];
+        if(t.membersArray.length > 0) {
+            t.currentMemberIdx = (t.currentMemberIdx + 1) % t.membersArray.length;
+        }
+
         if(app.teams[app.turn].score >= app.goal) {
-            app.sfx.win();
+            app.sfx.win(); // FANFARRIA FINAL
             document.getElementById('winner-modal').style.display='flex';
             document.getElementById('w-name').textContent = app.teams[app.turn].name;
             document.getElementById('w-name').className = `winner-name text-${app.teams[app.turn].id}`;
