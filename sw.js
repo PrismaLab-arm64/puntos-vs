@@ -1,133 +1,58 @@
-/* SUMMA - Service Worker v23.1 
+/* SUMMA - Service Worker v23.1.2
  * Diseñado por Ing. John A. Skinner S.
+ * VERSIÓN SIMPLIFICADA - FUERZA ACTUALIZACIÓN
  */
 
-const CACHE_NAME = 'summa-v23.1.1';
-const APP_VERSION = '23.1.1';
-const CACHE_ASSETS = [
-    './',
-    './index.html',
-    './css/style.css',
-    './js/script.js',
-    './js/db.js',
-    './js/wakelock.js',
-    './js/statemachine.js',
-    './icon.png',
-    './manifest.json'
-];
+const CACHE_NAME = 'summa-v23.1.2';
+const APP_VERSION = '23.1.2';
 
-// ===========================
-// INSTALACIÓN
-// ===========================
+// Forzar actualización inmediata
 self.addEventListener('install', (event) => {
-    console.log('[SW] 📦 Instalando Service Worker v22.0...');
-    
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('[SW] ✅ Cache abierto');
-                return cache.addAll(CACHE_ASSETS);
-            })
-            .then(() => {
-                console.log('[SW] ✅ Todos los archivos cacheados');
-                return self.skipWaiting(); // Activar inmediatamente
-            })
-            .catch((err) => {
-                console.error('[SW] ❌ Error cacheando archivos:', err);
-            })
-    );
+    console.log('[SW] 🚀 Instalando SUMMA Service Worker v23.1.2');
+    self.skipWaiting(); // Activar inmediatamente sin esperar
 });
 
-// ===========================
-// ACTIVACIÓN
-// ===========================
 self.addEventListener('activate', (event) => {
-    console.log('[SW] 🔄 Activando Service Worker v22.0...');
-    
+    console.log('[SW] ✅ Activando SUMMA Service Worker v23.1.2');
     event.waitUntil(
-        caches.keys()
-            .then((cacheNames) => {
-                return Promise.all(
-                    cacheNames.map((cache) => {
-                        if (cache !== CACHE_NAME) {
-                            console.log('[SW] 🗑️ Eliminando cache antiguo:', cache);
-                            return caches.delete(cache);
-                        }
-                    })
-                );
-            })
-            .then(() => {
-                console.log('[SW] ✅ Service Worker activado');
-                return self.clients.claim(); // Tomar control inmediato
-            })
+        // Eliminar TODOS los caches antiguos
+        caches.keys().then(keys => {
+            return Promise.all(
+                keys.map(key => {
+                    console.log('[SW] 🗑️ Eliminando cache antiguo:', key);
+                    return caches.delete(key);
+                })
+            );
+        }).then(() => {
+            console.log('[SW] ✅ Caches antiguos eliminados');
+            // Tomar control inmediato de todas las páginas
+            return self.clients.claim();
+        })
     );
 });
 
-// ===========================
-// FETCH - ESTRATEGIA CACHE-FIRST CON NETWORK FALLBACK
-// ===========================
+// Siempre ir a la red (sin cache por ahora)
 self.addEventListener('fetch', (event) => {
-    // Ignorar requests que no sean GET
-    if (event.request.method !== 'GET') return;
-    
-    // Ignorar requests a dominios externos (CDN, APIs)
-    if (!event.request.url.startsWith(self.location.origin)) {
-        return;
-    }
-    
     event.respondWith(
-        caches.match(event.request)
-            .then((cachedResponse) => {
-                if (cachedResponse) {
-                    // console.log('[SW] 📦 Sirviendo desde cache:', event.request.url);
-                    return cachedResponse;
+        fetch(event.request)
+            .then(response => {
+                // Clonar la respuesta
+                const responseClone = response.clone();
+                
+                // Cachear solo si es exitoso
+                if (response.status === 200) {
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(event.request, responseClone);
+                    });
                 }
                 
-                // Si no está en cache, hacer fetch a la red
-                return fetch(event.request)
-                    .then((networkResponse) => {
-                        // Cachear la respuesta para futuras requests
-                        if (networkResponse && networkResponse.status === 200) {
-                            return caches.open(CACHE_NAME)
-                                .then((cache) => {
-                                    cache.put(event.request, networkResponse.clone());
-                                    return networkResponse;
-                                });
-                        }
-                        return networkResponse;
-                    })
-                    .catch((err) => {
-                        console.error('[SW] ❌ Error en fetch:', err);
-                        // Aquí podrías retornar una página offline personalizada
-                        return new Response('Offline - No se pudo cargar el recurso', {
-                            status: 503,
-                            statusText: 'Service Unavailable',
-                            headers: new Headers({
-                                'Content-Type': 'text/plain'
-                            })
-                        });
-                    });
+                return response;
+            })
+            .catch(() => {
+                // Si falla la red, intentar cache
+                return caches.match(event.request);
             })
     );
 });
 
-// ===========================
-// MENSAJES DESDE LA APP
-// ===========================
-self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        console.log('[SW] ⏭️ Skip waiting solicitado');
-        self.skipWaiting();
-    }
-    
-    if (event.data && event.data.type === 'CLEAR_CACHE') {
-        console.log('[SW] 🗑️ Limpiando cache...');
-        event.waitUntil(
-            caches.delete(CACHE_NAME).then(() => {
-                console.log('[SW] ✅ Cache limpiado');
-            })
-        );
-    }
-});
-
-console.log('[SW] ✅ Service Worker cargado');
+console.log('[SW] ✅ SUMMA Service Worker v23.1.2 cargado');

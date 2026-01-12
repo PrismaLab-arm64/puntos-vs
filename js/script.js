@@ -2,7 +2,7 @@
  * Diseñado por Ing. John A. Skinner S.
  */
 
-const APP_VERSION = '23.1.1';
+const APP_VERSION = '23.1.2';
 
 const app = {
     // --- ESTADO CORE ---
@@ -55,34 +55,50 @@ const app = {
                 const registration = await navigator.serviceWorker.register('./sw.js');
                 console.log('✅ Service Worker registrado:', registration.scope);
                 
-                // Sistema de actualización automática
+                // FORZAR ACTUALIZACIÓN INMEDIATA si hay cambios
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
-                    console.log('🔄 Nueva versión del Service Worker detectada');
+                    console.log('🔄 Nueva versión del Service Worker detectada - FORZANDO ACTUALIZACIÓN');
                     
                     newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('✅ Nueva versión lista para instalar');
-                            app.updateReady = true;
-                            app.newServiceWorker = newWorker;
-                            app.showUpdateNotification();
+                        if (newWorker.state === 'activated') {
+                            console.log('✅ Nueva versión activada - RECARGANDO...');
+                            window.location.reload();
                         }
                     });
                 });
                 
-                // Verificar si ya hay una actualización esperando
+                // Si ya hay una actualización esperando, activarla inmediatamente
                 if (registration.waiting) {
-                    console.log('⚠️ Actualización ya disponible');
-                    app.updateReady = true;
-                    app.newServiceWorker = registration.waiting;
-                    app.showUpdateNotification();
+                    console.log('⚠️ Actualización detectada - ACTIVANDO...');
+                    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
                 }
                 
-                // Escuchar mensajes del SW
+                // Escuchar cambios de controlador
                 navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('🔄 Service Worker actualizado. Recargando...');
-                    window.location.reload();
+                    console.log('🔄 Service Worker actualizado. Recargando en 500ms...');
+                    setTimeout(() => window.location.reload(), 500);
                 });
+                
+                // Verificar versión almacenada
+                const storedVersion = localStorage.getItem('app_version');
+                if (storedVersion && storedVersion !== APP_VERSION) {
+                    console.log(`📦 Versión antigua detectada: ${storedVersion} → ${APP_VERSION}`);
+                    localStorage.setItem('app_version', APP_VERSION);
+                    // Limpiar caches viejos
+                    if ('caches' in window) {
+                        caches.keys().then(keys => {
+                            keys.forEach(key => {
+                                if (!key.includes(APP_VERSION)) {
+                                    console.log('🗑️ Eliminando cache antiguo:', key);
+                                    caches.delete(key);
+                                }
+                            });
+                        });
+                    }
+                } else {
+                    localStorage.setItem('app_version', APP_VERSION);
+                }
                 
             } catch (err) {
                 console.error('❌ Error registrando Service Worker:', err);

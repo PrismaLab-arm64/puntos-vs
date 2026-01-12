@@ -5,6 +5,43 @@ Historial completo de cambios y versiones de SUMMA.
 ---
 
 ## [23.1.0] - 2026-01-12
+## [23.1.2] - 2026-01-12
+
+### 🔄 Actualización Forzada del Service Worker
+
+**Problema resuelto:** Usuarios con versión antigua cacheada veían "PUNTOS VS" en lugar de "SUMMA"
+
+#### Cambios Críticos:
+
+1. **Service Worker simplificado:**
+   - Eliminación agresiva de caches antiguos
+   - `skipWaiting()` inmediato
+   - `clients.claim()` forzado
+   - Network-first strategy (sin cache persistente por ahora)
+
+2. **Detección automática de versión:**
+   - Comparación de versión en localStorage
+   - Limpieza automática de caches viejos
+   - Reload automático al detectar nueva versión
+
+3. **Actualización forzada:**
+   - No espera confirmación del usuario
+   - Recarga automática en 500ms
+   - Elimina TODOS los caches al activarse
+
+#### Solución para usuarios:
+
+**Si aún ves "PUNTOS VS" en móvil:**
+1. Desinstala la app
+2. Abre Chrome
+3. Ve a: https://prismalab-arm64.github.io/SUMMA/
+4. Reinstala
+
+O simplemente:
+- Abre la app → Espera 5 segundos → Se recargará automáticamente
+
+---
+
 ## [23.1.1] - 2026-01-12
 
 ### 🔗 Actualización de URLs
