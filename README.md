@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Version](https://img.shields.io/badge/version-23.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-23.1.1-blue.svg)
 ![PWA](https://img.shields.io/badge/PWA-Ready-green.svg)
 ![License](https://img.shields.io/badge/license-Proprietary-red.svg)
 
@@ -10,7 +10,7 @@
 
 *Diseñado y desarrollado por **Ing. John A. Skinner S.***
 
-[🌐 Ver Demo](https://prismalab-arm64.github.io/puntos-vs/) | [📱 Instalar PWA](#instalación) | [📖 Documentación](#documentación)
+[🌐 Ver Demo](https://prismalab-arm64.github.io/SUMMA/) | [📱 Instalar PWA](#instalación) | [📖 Documentación](#documentación)
 
 </div>
 
@@ -59,19 +59,19 @@
 ### Opción 1: Instalación PWA (Recomendada)
 
 #### **Android / Chrome**
-1. Abre https://prismalab-arm64.github.io/puntos-vs/
+1. Abre https://prismalab-arm64.github.io/SUMMA/
 2. Toca el botón **"⬇️ INSTALAR APLICACIÓN"**
 3. Confirma en el diálogo del navegador
 4. ¡Listo! Encontrarás el ícono en tu pantalla de inicio
 
 #### **iOS / Safari**
-1. Abre https://prismalab-arm64.github.io/puntos-vs/
+1. Abre https://prismalab-arm64.github.io/SUMMA/
 2. Toca el botón de **Compartir** (cuadrado con flecha)
 3. Selecciona **"Agregar a pantalla de inicio"**
 4. Confirma el nombre y toca **"Agregar"**
 
 #### **Windows / macOS (Chrome/Edge)**
-1. Abre https://prismalab-arm64.github.io/puntos-vs/
+1. Abre https://prismalab-arm64.github.io/SUMMA/
 2. Haz clic en el ícono **⊕** en la barra de dirección
 3. O busca **"Instalar SUMMA"** en el menú del navegador
 4. Confirma la instalación
@@ -80,7 +80,7 @@
 
 Simplemente abre la URL en cualquier navegador moderno:
 ```
-https://prismalab-arm64.github.io/puntos-vs/
+https://prismalab-arm64.github.io/SUMMA/
 ```
 
 ---

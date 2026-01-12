@@ -2,7 +2,7 @@
  * Diseñado por Ing. John A. Skinner S.
  */
 
-const APP_VERSION = '23.1.0';
+const APP_VERSION = '23.1.1';
 
 const app = {
     // --- ESTADO CORE ---

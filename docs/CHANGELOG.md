@@ -5,6 +5,29 @@ Historial completo de cambios y versiones de SUMMA.
 ---
 
 ## [23.1.0] - 2026-01-12
+## [23.1.1] - 2026-01-12
+
+### 🔗 Actualización de URLs
+
+**Repositorio renombrado exitosamente:** `puntos-vs` → `SUMMA`
+
+#### Cambios:
+- ✅ Remote origin actualizado a `SUMMA.git`
+- ✅ URLs en README.md actualizadas
+- ✅ URLs en CHANGELOG.md actualizadas
+- ✅ GitHub Pages ahora en: `https://prismalab-arm64.github.io/SUMMA/`
+- ✅ Versión incrementada: 23.1.0 → 23.1.1
+- ✅ Cache name: `summa-v23.1.1`
+
+#### Nueva URL oficial:
+```
+https://prismalab-arm64.github.io/SUMMA/
+```
+
+**Nota:** Las URLs antiguas (`/puntos-vs/`) redirigen automáticamente.
+
+---
+
 
 ### 🔧 Parche de Consistencia
 

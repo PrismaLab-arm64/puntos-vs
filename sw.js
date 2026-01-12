@@ -2,8 +2,8 @@
  * Diseñado por Ing. John A. Skinner S.
  */
 
-const CACHE_NAME = 'summa-v23.1.0';
-const APP_VERSION = '23.1.0';
+const CACHE_NAME = 'summa-v23.1.1';
+const APP_VERSION = '23.1.1';
 const CACHE_ASSETS = [
     './',
     './index.html',
