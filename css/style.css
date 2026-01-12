@@ -1,7 +1,317 @@
-:root { --neon-A: #ff0055; --neon-B: #00eaff; --neon-C: #39ff14; --neon-D: #ffff00; --bg: #050505; }
+:root { 
+    --neon-A: #ff0055; 
+    --neon-B: #00eaff; 
+    --neon-C: #39ff14; 
+    --neon-D: #ffff00; 
+    --bg: #121212; /* Gris profundo ergonómico */
+    --bg-oled: #000000; /* OLED Black opcional */
+    --text-primary: #E0E0E0; /* Gris claro para mejor legibilidad */
+    --text-secondary: #B0B0B0;
+    --surface: #1E1E1E;
+    --surface-elevated: #2A2A2A;
+}
+
+/* Clase opcional para OLED Black mode */
+body.oled-mode {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-elevated: #111111;
+}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
-body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: #fff; margin: 0; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+body { 
+    font-family: system-ui, -apple-system, sans-serif; 
+    background-color: var(--bg); 
+    color: var(--text-primary); 
+    margin: 0; 
+    height: 100dvh; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column;
+    /* Safe area para notch/isla dinámica */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* ========================================
+   SPLASH SCREEN
+   ======================================== */
+
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: splashFadeIn 0.5s ease-out;
+}
+
+.splash-screen.active {
+    display: flex;
+}
+
+.splash-screen.fade-out {
+    animation: splashFadeOut 0.5s ease-out forwards;
+}
+
+@keyframes splashFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes splashFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(20px, 5vw, 30px);
+    padding: clamp(20px, 5vw, 40px);
+    max-width: 90%;
+}
+
+.splash-logo-container {
+    position: relative;
+    width: clamp(120px, 30vw, 200px);
+    height: clamp(120px, 30vw, 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: splashLogoAppear 1s ease-out;
+}
+
+@keyframes splashLogoAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.splash-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(0, 234, 255, 0.5));
+    animation: splashLogoPulse 2s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes splashLogoPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px rgba(0, 234, 255, 0.5));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 30px rgba(0, 234, 255, 0.8));
+    }
+}
+
+.splash-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(0, 234, 255, 0.2) 0%, transparent 70%);
+    animation: splashGlowPulse 2s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes splashGlowPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+.splash-title {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: 900;
+    font-style: italic;
+    margin: 0;
+    background: linear-gradient(135deg, #00eaff 0%, #ff0055 50%, #00eaff 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: splashTitleGradient 3s ease infinite, splashTitleAppear 0.8s ease-out 0.3s backwards;
+    letter-spacing: 3px;
+}
+
+@keyframes splashTitleGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes splashTitleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.splash-subtitle {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: var(--text-secondary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    animation: splashSubtitleAppear 0.8s ease-out 0.5s backwards;
+}
+
+@keyframes splashSubtitleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.splash-loader {
+    width: clamp(200px, 60vw, 300px);
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: clamp(20px, 5vw, 30px);
+    animation: splashLoaderAppear 0.5s ease-out 0.7s backwards;
+}
+
+@keyframes splashLoaderAppear {
+    from {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+    to {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+.splash-loader-bar {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #00eaff 50%, 
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: splashLoaderMove 1.5s ease-in-out infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+}
+
+@keyframes splashLoaderMove {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.splash-footer {
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0;
+    margin-top: clamp(20px, 5vw, 30px);
+    animation: splashFooterAppear 0.5s ease-out 1s backwards;
+    letter-spacing: 1px;
+}
+
+@keyframes splashFooterAppear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.3;
+    }
+}
+
+/* Responsive para splash screen */
+@media (max-width: 374px) {
+    .splash-logo-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .splash-title {
+        letter-spacing: 2px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .splash-content {
+        gap: 10px;
+    }
+    
+    .splash-logo-container {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .splash-loader {
+        margin-top: 10px;
+    }
+    
+    .splash-footer {
+        margin-top: 10px;
+    }
+}
+
+/* ========================================
+   FIN SPLASH SCREEN
+   ======================================== */
+
 
 /* LAYOUT */
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
@@ -20,12 +330,198 @@ body { font-family: system-ui, -apple-system, sans-serif; background-color: var(
 .inputs-col { flex: 1; display: flex; flex-direction: column; gap: clamp(5px, 1.5vw, 8px); min-width: 0; }
 .btn-delete-row { background: #330000; color: #ff5555; border: 1px solid #550000; width: clamp(28px, 6vw, 30px); height: clamp(28px, 6vw, 30px); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: clamp(0.9rem, 2.5vw, 1rem); margin-left: clamp(4px, 1.5vw, 8px); margin-top: 5px; cursor: pointer; flex-shrink: 0; }
 
-input { background: #222; border: 1px solid #444; color: white; padding: clamp(10px, 2.5vw, 12px); border-radius: 6px; width: 100%; font-size: clamp(0.9rem, 2.5vw, 1rem); outline: none; }
-input:focus { border-color: #00eaff; background: #000; }
+input { 
+    background: #222; 
+    border: 1px solid #444; 
+    color: white; 
+    padding: clamp(10px, 2.5vw, 12px); 
+    border-radius: 6px; 
+    width: 100%; 
+    font-size: clamp(0.9rem, 2.5vw, 1rem); 
+    outline: none; 
+    transition: all 0.3s ease;
+}
+
+input:focus { 
+    border-color: #00eaff; 
+    background: #000; 
+    box-shadow: 0 0 15px rgba(0, 234, 255, 0.3); 
+}
+
+/* Animación de cursor parpadeante simulado para inputs vacíos */
+input:not(:focus):placeholder-shown {
+    background: 
+        linear-gradient(#222, #222), /* Fondo base */
+        linear-gradient(90deg, #00eaff 0%, #00eaff 100%); /* Cursor */
+    background-size: 
+        100% 100%, /* Fondo completo */
+        2px 50%; /* Cursor: 2px de ancho, 50% de alto */
+    background-position: 
+        0 0, /* Fondo en posición normal */
+        12px center; /* Cursor a 12px del borde izquierdo, centrado verticalmente */
+    background-repeat: no-repeat;
+    animation: 
+        inputCursorBlink 1s step-end infinite, /* Parpadeo del cursor */
+        inputBorderPulse 3s ease-in-out infinite; /* Pulso del borde */
+}
+
+@keyframes inputCursorBlink {
+    0%, 49% { 
+        background-size: 100% 100%, 2px 50%; 
+    }
+    50%, 100% { 
+        background-size: 100% 100%, 2px 0%; 
+    }
+}
+
+@keyframes inputBorderPulse {
+    0%, 100% { 
+        border-color: #444; 
+        box-shadow: none;
+    }
+    50% { 
+        border-color: #00eaff; 
+        box-shadow: 0 0 10px rgba(0, 234, 255, 0.2);
+    }
+}
+
+/* Placeholder mejorado */
+input::placeholder {
+    color: #666;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+input:focus::placeholder {
+    color: #00eaff;
+    opacity: 0.4;
+}
 
 .members-wrapper { display: flex; flex-direction: column; gap: clamp(4px, 1vw, 5px); margin-top: 5px; }
 .member-row { display: flex; gap: clamp(4px, 1vw, 5px); }
-.input-member-small { padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px); font-size: clamp(0.8rem, 2.2vw, 0.9rem); flex: 1; background: #1a1a1a; border-color: #333; min-width: 0; }
+.input-member-small { 
+    padding: clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px); 
+    font-size: clamp(0.8rem, 2.2vw, 0.9rem); 
+    flex: 1; 
+    background: #1a1a1a; 
+    border-color: #333; 
+    min-width: 0; 
+    transition: all 0.3s ease;
+}
+
+/* Efecto cursor para inputs pequeños */
+.input-member-small:not(:focus):placeholder-shown {
+    background: 
+        linear-gradient(#1a1a1a, #1a1a1a),
+        linear-gradient(90deg, #00eaff 0%, #00eaff 100%);
+    background-size: 
+        100% 100%, 
+        2px 45%;
+    background-position: 
+        0 0, 
+        10px center;
+    background-repeat: no-repeat;
+    animation: 
+        inputCursorBlink 1s step-end infinite,
+        inputBorderPulse 3s ease-in-out infinite;
+}
+
+.input-member-small:focus {
+    border-color: #00eaff;
+    background: #0a0a0a;
+    box-shadow: 0 0 10px rgba(0, 234, 255, 0.2);
+}
+
+.input-member-small::placeholder {
+    color: #555;
+    opacity: 0.7;
+}
+
+/* Efecto de cursor parpadeante mejorado para todos los inputs y textareas */
+textarea {
+    background: #222;
+    border: 1px solid #444;
+    color: white;
+    padding: clamp(10px, 2.5vw, 12px);
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: clamp(0.85rem, 2.2vw, 0.95rem);
+    outline: none;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+textarea:not(:focus):placeholder-shown {
+    background: 
+        linear-gradient(#222, #222),
+        linear-gradient(90deg, #00eaff 0%, #00eaff 100%);
+    background-size: 
+        100% 100%, 
+        2px 30px;
+    background-position: 
+        0 0, 
+        12px 12px;
+    background-repeat: no-repeat;
+    animation: 
+        inputCursorBlink 1s step-end infinite,
+        inputBorderPulse 3s ease-in-out infinite;
+}
+
+textarea:focus {
+    border-color: #00eaff;
+    background: #000;
+    box-shadow: 0 0 15px rgba(0, 234, 255, 0.3);
+}
+
+textarea::placeholder {
+    color: #666;
+    opacity: 0.7;
+}
+
+textarea:focus::placeholder {
+    color: #00eaff;
+    opacity: 0.4;
+}
+
+input.cursor-active,
+textarea.cursor-active,
+.input-member-small.cursor-active {
+    position: relative;
+}
+
+/* Cursor parpadeante con pseudo-elemento */
+input.cursor-active:not(:focus):placeholder-shown,
+textarea.cursor-active:not(:focus):placeholder-shown {
+    background-image: linear-gradient(to right, #00eaff 0%, #00eaff 100%);
+    background-size: 2px 60%;
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    animation: cursorPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes cursorPulse {
+    0%, 40% { background-size: 2px 60%; }
+    50% { background-size: 2px 0%; }
+    60%, 100% { background-size: 2px 60%; }
+}
+
+/* Efecto de brillo sutil en borde para llamar la atención */
+input:not(:focus):placeholder-shown,
+textarea:not(:focus):placeholder-shown,
+.input-member-small:not(:focus):placeholder-shown {
+    animation: borderGlow 4s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% { 
+        border-color: #444; 
+        box-shadow: none;
+    }
+    50% { 
+        border-color: #555; 
+        box-shadow: 0 0 8px rgba(0, 234, 255, 0.15);
+    }
+}
 .btn-add-member { width: clamp(35px, 8vw, 40px); background: #003333; color: #00eaff; border: 1px solid #005555; border-radius: 6px; font-weight: bold; font-size: clamp(1rem, 2.8vw, 1.2rem); cursor: pointer; display: grid; place-items: center; flex-shrink: 0; }
 .hidden { display: none !important; }
 
@@ -229,4 +725,240 @@ input:focus { border-color: #00eaff; background: #000; }
     .header { padding-left: max(15px, calc(15px + env(safe-area-inset-left))); padding-right: max(15px, calc(15px + env(safe-area-inset-right))); }
     .setup-container { padding-left: max(20px, calc(20px + env(safe-area-inset-left))); padding-right: max(20px, calc(20px + env(safe-area-inset-right))); padding-bottom: max(20px, calc(20px + env(safe-area-inset-bottom))); }
     .controls { padding-bottom: max(10px, calc(10px + env(safe-area-inset-bottom))); }
+}
+
+/* ========================================
+   MODAL DE CONFIRMACIÓN DE PUNTAJE
+   ======================================== */
+
+.confirm-container {
+    background: var(--surface-elevated);
+    border-radius: clamp(16px, 4vw, 24px);
+    padding: clamp(20px, 5vw, 30px);
+    width: clamp(280px, 90vw, 400px);
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(15px, 3vw, 20px);
+    border: 2px solid #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    animation: confirmSlideIn 0.3s ease-out;
+}
+
+@keyframes confirmSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.confirm-icon {
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    animation: confirmPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes confirmPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.confirm-title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.confirm-preview {
+    width: 100%;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: clamp(15px, 3vw, 20px);
+    border: 1px solid #333;
+}
+
+.confirm-team-info {
+    text-align: center;
+    margin-bottom: clamp(12px, 3vw, 15px);
+    padding-bottom: clamp(12px, 3vw, 15px);
+    border-bottom: 1px solid #333;
+}
+
+.confirm-team-name {
+    font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+    font-weight: 900;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.confirm-player-name {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.confirm-points-display {
+    text-align: center;
+    margin: clamp(15px, 3vw, 20px) 0;
+}
+
+.confirm-label {
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.confirm-points {
+    font-size: clamp(3rem, 10vw, 4.5rem);
+    font-weight: 900;
+    font-family: monospace;
+    color: #00eaff;
+    text-shadow: 0 0 20px rgba(0, 234, 255, 0.5);
+    animation: confirmPointsPulse 2s ease-in-out infinite;
+}
+
+@keyframes confirmPointsPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.confirm-score-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(8px, 2vw, 12px);
+    margin-top: clamp(15px, 3vw, 20px);
+    padding: clamp(12px, 3vw, 15px);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.score-before,
+.score-after {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.score-label {
+    font-size: clamp(0.7rem, 2vw, 0.85rem);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.score-value {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--text-primary);
+}
+
+.score-highlight {
+    color: #00eaff;
+    text-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+}
+
+.score-arrow {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    color: #00eaff;
+    flex-shrink: 0;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: clamp(10px, 2.5vw, 15px);
+    width: 100%;
+    margin-top: clamp(10px, 2.5vw, 15px);
+}
+
+.btn-confirm-yes,
+.btn-confirm-no {
+    flex: 1;
+    padding: clamp(14px, 3.5vw, 18px) clamp(20px, 5vw, 30px);
+    border-radius: 12px;
+    font-size: clamp(1rem, 2.8vw, 1.2rem);
+    font-weight: 900;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    touch-action: manipulation;
+}
+
+.btn-confirm-yes {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+.btn-confirm-yes:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+}
+
+.btn-confirm-no {
+    background: linear-gradient(135deg, #ff5555 0%, #cc3333 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 85, 85, 0.3);
+}
+
+.btn-confirm-no:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(255, 85, 85, 0.3);
+}
+
+.confirm-hint {
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+    color: var(--text-secondary);
+    text-align: center;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Responsive para el modal de confirmación */
+@media (max-width: 374px) {
+    .confirm-container {
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .confirm-score-preview {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .score-arrow {
+        transform: rotate(90deg);
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .confirm-container {
+        padding: 15px;
+        gap: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .confirm-icon {
+        font-size: 2rem;
+    }
+    
+    .confirm-points {
+        font-size: 2.5rem;
+    }
 }

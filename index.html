@@ -2,30 +2,51 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PUNTOS VS | Prisma Labs</title>
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; worker-src 'self';">
 
     <link rel="stylesheet" href="css/style.css">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#121212">
     <meta name="mobile-web-app-capable" content="yes">
     
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Puntos VS">
+    
+    <!-- Nuevos módulos -->
+    <script src="js/db.js"></script>
+    <script src="js/wakelock.js"></script>
+    <script src="js/statemachine.js"></script>
 </head>
 <body>
 
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen" class="splash-screen active">
+        <div class="splash-content">
+            <div class="splash-logo-container">
+                <img src="icon.png" alt="PUNTOS VS" class="splash-logo">
+                <div class="splash-glow"></div>
+            </div>
+            <h1 class="splash-title">PUNTOS VS</h1>
+            <p class="splash-subtitle">Marcador Universal</p>
+            <div class="splash-loader">
+                <div class="splash-loader-bar"></div>
+            </div>
+            <p class="splash-footer">Prisma Labs © 2026</p>
+        </div>
+    </div>
+
     <div class="dynamic-bg"></div>
 
-    <div id="setup-screen" class="screen active">
+    <div id="setup-screen" class="screen">
         <div class="setup-container">
             <h1 class="vs-logo">PUNTOS VS</h1>
             
@@ -95,6 +116,7 @@
                 <button onclick="app.editGoal()" class="menu-opt" style="border-color:#ffff00; color:#ffff00;">🎯 Meta: <span id="menu-goal-display">1000</span></button>
                 
                 <button onclick="app.toggleSound()" class="menu-opt">🔊 Sonido: <span id="sound-state">ON</span></button>
+                <button onclick="app.toggleOLEDMode()" class="menu-opt" style="border-color:#888; color:#888;">🌙 OLED: <span id="oled-state">OFF</span></button>
                 <button onclick="app.openShareModal()" class="menu-opt" style="border-color:#00eaff; color:#00eaff;">📲 Transferir / QR</button>
                 <button onclick="app.openEditNames()" class="menu-opt">✏️ Editar Nombres</button>
                 <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000; grid-column: span 2;">♻️ Reiniciar Puntos</button>
@@ -148,6 +170,51 @@
         <button onclick="app.rematch('all')" class="btn-revancha">🔄 REVANCHA (TODOS)</button>
         <button onclick="app.rematch('top2')" class="btn-revancha" style="background: gold; color: black; margin-top: 10px;">🏆 FINAL (TOP 1 vs TOP 2)</button>
         <button onclick="location.reload()" class="btn-add" style="margin-top:20px; border:1px solid #555; background:transparent; color:#888;">SALIR / NUEVA</button>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN DE PUNTAJE -->
+    <div id="confirm-score-modal" class="modal">
+        <div class="confirm-container">
+            <div class="confirm-icon">⚠️</div>
+            <h2 class="confirm-title">CONFIRMAR PUNTAJE</h2>
+            
+            <div class="confirm-preview">
+                <div class="confirm-team-info">
+                    <div id="confirm-team-name" class="confirm-team-name">EQUIPO A</div>
+                    <div id="confirm-player-name" class="confirm-player-name">Jugador Actual</div>
+                </div>
+                
+                <div class="confirm-points-display">
+                    <div class="confirm-label">Puntos a agregar:</div>
+                    <div id="confirm-points" class="confirm-points">+25</div>
+                </div>
+                
+                <div class="confirm-score-preview">
+                    <div class="score-before">
+                        <span class="score-label">Puntaje actual:</span>
+                        <span id="confirm-score-before" class="score-value">100</span>
+                    </div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-after">
+                        <span class="score-label">Puntaje nuevo:</span>
+                        <span id="confirm-score-after" class="score-value score-highlight">125</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-buttons">
+                <button onclick="app.confirmScoreSubmit()" class="btn-confirm-yes">
+                    ✓ CONFIRMAR
+                </button>
+                <button onclick="app.cancelScoreSubmit()" class="btn-confirm-no">
+                    ✕ CORREGIR
+                </button>
+            </div>
+
+            <div class="confirm-hint">
+                Verifica que el puntaje sea correcto antes de confirmar
+            </div>
+        </div>
     </div>
 
     <script src="js/script.js?v=21.1"></script>
