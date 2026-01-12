@@ -39,6 +39,10 @@ const app = {
     init: async () => {
         console.log('🚀 Inicializando PUNTOS VS v22.0...');
         
+        // Mostrar splash screen durante la carga
+        const splashDuration = 2500; // 2.5 segundos
+        const startTime = Date.now();
+        
         // 1. Inicializar IndexedDB
         try {
             await DB.init();
@@ -61,6 +65,9 @@ const app = {
         // 4. Intentar restaurar partida anterior
         const savedState = await DB.loadGameState();
         if (savedState && !window.location.search.includes('data')) {
+            // Esperar a que termine el splash antes de mostrar el prompt
+            await app.waitForSplash(startTime, splashDuration);
+            
             const shouldRestore = confirm('¿Deseas continuar la partida anterior?');
             if (shouldRestore) {
                 await app.restoreGameState(savedState);
@@ -114,7 +121,40 @@ const app = {
         document.getElementById('btn-undo-calc').onclick = app.undoCalc;
         document.getElementById('btn-ok').onclick = app.submit;
 
+        // 8. Ocultar splash screen después del tiempo mínimo
+        await app.waitForSplash(startTime, splashDuration);
+        app.hideSplashScreen();
+
         console.log('✅ App inicializada correctamente');
+    },
+
+    /**
+     * Espera el tiempo necesario para que el splash screen complete su duración mínima
+     */
+    waitForSplash: async (startTime, minDuration) => {
+        const elapsed = Date.now() - startTime;
+        const remaining = minDuration - elapsed;
+        
+        if (remaining > 0) {
+            await new Promise(resolve => setTimeout(resolve, remaining));
+        }
+    },
+
+    /**
+     * Oculta el splash screen con animación
+     */
+    hideSplashScreen: () => {
+        const splash = document.getElementById('splash-screen');
+        splash.classList.add('fade-out');
+        
+        // Remover después de la animación
+        setTimeout(() => {
+            splash.classList.remove('active', 'fade-out');
+            splash.style.display = 'none';
+            
+            // Mostrar la pantalla de setup
+            document.getElementById('setup-screen').classList.add('active');
+        }, 500); // Duración de la animación fade-out
     },
 
     // --- PERSISTENCIA ---

@@ -36,6 +36,283 @@ body {
     padding-right: env(safe-area-inset-right);
 }
 
+/* ========================================
+   SPLASH SCREEN
+   ======================================== */
+
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    animation: splashFadeIn 0.5s ease-out;
+}
+
+.splash-screen.active {
+    display: flex;
+}
+
+.splash-screen.fade-out {
+    animation: splashFadeOut 0.5s ease-out forwards;
+}
+
+@keyframes splashFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes splashFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(20px, 5vw, 30px);
+    padding: clamp(20px, 5vw, 40px);
+    max-width: 90%;
+}
+
+.splash-logo-container {
+    position: relative;
+    width: clamp(120px, 30vw, 200px);
+    height: clamp(120px, 30vw, 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: splashLogoAppear 1s ease-out;
+}
+
+@keyframes splashLogoAppear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.splash-logo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(0, 234, 255, 0.5));
+    animation: splashLogoPulse 2s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+}
+
+@keyframes splashLogoPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 20px rgba(0, 234, 255, 0.5));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 30px rgba(0, 234, 255, 0.8));
+    }
+}
+
+.splash-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(0, 234, 255, 0.2) 0%, transparent 70%);
+    animation: splashGlowPulse 2s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes splashGlowPulse {
+    0%, 100% {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+}
+
+.splash-title {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+    font-weight: 900;
+    font-style: italic;
+    margin: 0;
+    background: linear-gradient(135deg, #00eaff 0%, #ff0055 50%, #00eaff 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: splashTitleGradient 3s ease infinite, splashTitleAppear 0.8s ease-out 0.3s backwards;
+    letter-spacing: 3px;
+}
+
+@keyframes splashTitleGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes splashTitleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.splash-subtitle {
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    color: var(--text-secondary);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+    animation: splashSubtitleAppear 0.8s ease-out 0.5s backwards;
+}
+
+@keyframes splashSubtitleAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.splash-loader {
+    width: clamp(200px, 60vw, 300px);
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: clamp(20px, 5vw, 30px);
+    animation: splashLoaderAppear 0.5s ease-out 0.7s backwards;
+}
+
+@keyframes splashLoaderAppear {
+    from {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+    to {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+.splash-loader-bar {
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        #00eaff 50%, 
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: splashLoaderMove 1.5s ease-in-out infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+}
+
+@keyframes splashLoaderMove {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.splash-footer {
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    color: rgba(255, 255, 255, 0.3);
+    margin: 0;
+    margin-top: clamp(20px, 5vw, 30px);
+    animation: splashFooterAppear 0.5s ease-out 1s backwards;
+    letter-spacing: 1px;
+}
+
+@keyframes splashFooterAppear {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.3;
+    }
+}
+
+/* Responsive para splash screen */
+@media (max-width: 374px) {
+    .splash-logo-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .splash-title {
+        letter-spacing: 2px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .splash-content {
+        gap: 10px;
+    }
+    
+    .splash-logo-container {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .splash-loader {
+        margin-top: 10px;
+    }
+    
+    .splash-footer {
+        margin-top: 10px;
+    }
+}
+
+/* ========================================
+   FIN SPLASH SCREEN
+   ======================================== */
+
+
 /* LAYOUT */
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
 .active { display: flex !important; }
