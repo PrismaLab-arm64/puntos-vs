@@ -306,7 +306,7 @@ Ver [CHANGELOG.md](docs/CHANGELOG.md) completo para historial detallado.
 
 Ingeniero de Software especializado en PWAs y desarrollo móvil
 
-📧 Contacto: [Email del autor]  
+📧 Contacto: [+57 311 258 1030]  
 🔗 LinkedIn: [Perfil del autor]  
 🌐 Portfolio: [Web del autor]
 
