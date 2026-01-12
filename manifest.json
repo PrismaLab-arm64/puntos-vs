@@ -1,14 +1,15 @@
 {
-  "name": "PUNTOS VS - Marcador Universal",
-  "short_name": "Puntos VS",
-  "description": "PWA profesional para registrar puntuaciones en tiempo real de más de 100 disciplinas deportivas",
+  "name": "SUMMA - Marcador Universal Profesional",
+  "short_name": "SUMMA",
+  "description": "PWA profesional para registrar puntuaciones en tiempo real de más de 100 disciplinas deportivas. Diseñada por Ing. John A. Skinner S.",
+  "version": "23.1.0",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#00eaff",
   "orientation": "any",
-  "categories": ["sports", "games", "utilities"],
+  "categories": ["sports", "games", "utilities", "productivity"],
   "lang": "es-ES",
   "dir": "ltr",
   "icons": [
@@ -41,5 +42,8 @@
       ]
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "author": "Ing. John A. Skinner S.",
+  "iarc_rating_id": ""
 }

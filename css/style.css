@@ -263,9 +263,31 @@ body {
     font-size: clamp(0.75rem, 2vw, 0.9rem);
     color: rgba(255, 255, 255, 0.3);
     margin: 0;
-    margin-top: clamp(20px, 5vw, 30px);
-    animation: splashFooterAppear 0.5s ease-out 1s backwards;
+    margin-top: clamp(8px, 2vw, 12px);
+    animation: splashFooterAppear 0.5s ease-out 1.2s backwards;
     letter-spacing: 1px;
+}
+
+.splash-author {
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+    margin-top: clamp(15px, 3vw, 20px);
+    animation: splashAuthorAppear 0.6s ease-out 1s backwards;
+    letter-spacing: 0.5px;
+    font-style: italic;
+    font-weight: 300;
+}
+
+@keyframes splashAuthorAppear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 0.7;
+        transform: translateY(0);
+    }
 }
 
 @keyframes splashFooterAppear {
@@ -960,5 +982,173 @@ textarea:not(:focus):placeholder-shown,
     
     .confirm-points {
         font-size: 2.5rem;
+    }
+}
+
+/* ========================================
+   UPDATE TOAST - NOTIFICACIÓN DE ACTUALIZACIÓN
+   ======================================== */
+
+.update-toast {
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    transition: top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Safe area para notch */
+    margin-top: env(safe-area-inset-top);
+}
+
+.update-toast.show {
+    top: 20px;
+}
+
+.update-toast-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #00eaff;
+    border-radius: 16px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 40px rgba(0, 234, 255, 0.3), 
+                0 0 20px rgba(0, 234, 255, 0.2);
+    min-width: 320px;
+    max-width: 90vw;
+    animation: updatePulse 2s infinite;
+}
+
+@keyframes updatePulse {
+    0%, 100% {
+        box-shadow: 0 10px 40px rgba(0, 234, 255, 0.3), 
+                    0 0 20px rgba(0, 234, 255, 0.2);
+    }
+    50% {
+        box-shadow: 0 10px 50px rgba(0, 234, 255, 0.5), 
+                    0 0 30px rgba(0, 234, 255, 0.4);
+    }
+}
+
+.update-icon {
+    font-size: 2rem;
+    animation: updateRotate 2s linear infinite;
+}
+
+@keyframes updateRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.update-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.update-text strong {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.update-text span {
+    color: #00eaff;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.btn-update-now {
+    background: #00eaff;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-update-now:hover {
+    background: #00d4ff;
+    transform: scale(1.05);
+}
+
+.btn-update-now:active {
+    transform: scale(0.95);
+}
+
+.btn-update-later {
+    background: transparent;
+    color: #888;
+    border: 1px solid #444;
+    border-radius: 8px;
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-update-later:hover {
+    background: #333;
+    color: #fff;
+    border-color: #666;
+}
+
+/* Responsive para toast */
+@media (max-width: 374px) {
+    .update-toast-content {
+        min-width: 280px;
+        padding: 12px 15px;
+        gap: 10px;
+    }
+    
+    .update-icon {
+        font-size: 1.5rem;
+    }
+    
+    .update-text strong {
+        font-size: 0.9rem;
+    }
+    
+    .update-text span {
+        font-size: 0.75rem;
+    }
+    
+    .btn-update-now {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+    }
+    
+    .btn-update-later {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 320px) {
+    .update-toast-content {
+        flex-direction: column;
+        text-align: center;
+        min-width: 260px;
+    }
+    
+    .btn-update-later {
+        position: absolute;
+        top: 10px;
+        right: 10px;
     }
 }

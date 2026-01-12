@@ -1,4 +1,8 @@
-/* PRISMA LABS ENGINE v22.0 - REFACTORIZACIÓN PROFESIONAL */
+/* SUMMA ENGINE v23.1 - SISTEMA DE ACTUALIZACIÓN AUTOMÁTICA 
+ * Diseñado por Ing. John A. Skinner S.
+ */
+
+const APP_VERSION = '23.1.0';
 
 const app = {
     // --- ESTADO CORE ---
@@ -13,6 +17,8 @@ const app = {
     stateMachine: null,
     gameType: 'linear', // 'linear' o 'tennis'
     pendingScore: null, // Para confirmación de puntajes
+    updateReady: false, // Bandera para actualización disponible
+    newServiceWorker: null, // Referencia al nuevo SW
     
     // --- AUDIO SYSTEM ---
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
@@ -37,30 +43,47 @@ const app = {
 
     // --- INICIALIZACIÓN ---
     init: async () => {
-        console.log('🚀 Inicializando PUNTOS VS v22.0...');
+        console.log(`🚀 Inicializando SUMMA v${APP_VERSION}...`);
         
         // Mostrar splash screen durante la carga
         const splashDuration = 2500; // 2.5 segundos
         const startTime = Date.now();
         
-        // 0. Registrar Service Worker (REQUERIDO PARA PWA)
+        // 0. Registrar Service Worker (REQUERIDO PARA PWA) con sistema de actualización
         if ('serviceWorker' in navigator) {
             try {
                 const registration = await navigator.serviceWorker.register('./sw.js');
                 console.log('✅ Service Worker registrado:', registration.scope);
                 
-                // Actualizar SW si hay una nueva versión
+                // Sistema de actualización automática
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     console.log('🔄 Nueva versión del Service Worker detectada');
                     
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('✅ Nueva versión lista. Recarga la página para actualizarla.');
-                            // Opcionalmente puedes mostrar un toast al usuario
+                            console.log('✅ Nueva versión lista para instalar');
+                            app.updateReady = true;
+                            app.newServiceWorker = newWorker;
+                            app.showUpdateNotification();
                         }
                     });
                 });
+                
+                // Verificar si ya hay una actualización esperando
+                if (registration.waiting) {
+                    console.log('⚠️ Actualización ya disponible');
+                    app.updateReady = true;
+                    app.newServiceWorker = registration.waiting;
+                    app.showUpdateNotification();
+                }
+                
+                // Escuchar mensajes del SW
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('🔄 Service Worker actualizado. Recargando...');
+                    window.location.reload();
+                });
+                
             } catch (err) {
                 console.error('❌ Error registrando Service Worker:', err);
             }
@@ -218,6 +241,73 @@ const app = {
             // Mostrar la pantalla de setup
             document.getElementById('setup-screen').classList.add('active');
         }, 500); // Duración de la animación fade-out
+    },
+
+    /**
+     * Muestra notificación de actualización disponible
+     */
+    showUpdateNotification: () => {
+        console.log('📢 Mostrando notificación de actualización');
+        
+        // Crear el toast de actualización si no existe
+        let toast = document.getElementById('update-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'update-toast';
+            toast.className = 'update-toast';
+            toast.innerHTML = `
+                <div class="update-toast-content">
+                    <div class="update-icon">🔄</div>
+                    <div class="update-text">
+                        <strong>Nueva versión disponible</strong>
+                        <span>v${APP_VERSION} lista para instalar</span>
+                    </div>
+                    <button id="btn-update-now" class="btn-update-now">
+                        Actualizar
+                    </button>
+                    <button id="btn-update-later" class="btn-update-later">
+                        ✕
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            // Event listeners para los botones
+            document.getElementById('btn-update-now').onclick = () => {
+                app.applyUpdate();
+            };
+            
+            document.getElementById('btn-update-later').onclick = () => {
+                toast.classList.remove('show');
+                console.log('⏭️ Actualización pospuesta');
+            };
+        }
+        
+        // Mostrar el toast con animación
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+    },
+
+    /**
+     * Aplica la actualización del Service Worker
+     */
+    applyUpdate: () => {
+        if (!app.newServiceWorker) {
+            console.error('❌ No hay Service Worker nuevo disponible');
+            return;
+        }
+        
+        console.log('🔄 Aplicando actualización...');
+        
+        // Enviar mensaje al Service Worker para que se active
+        app.newServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+        
+        // Ocultar el toast
+        const toast = document.getElementById('update-toast');
+        if (toast) {
+            toast.classList.remove('show');
+        }
     },
 
     // --- PERSISTENCIA ---

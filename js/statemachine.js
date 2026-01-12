@@ -1,4 +1,6 @@
-/* PRISMA LABS - Game State Machine v1.0 */
+/* SUMMA - Game State Machine v1.0
+ * Diseñado por Ing. John A. Skinner S.
+ */
 
 /**
  * Clase base para State Machine

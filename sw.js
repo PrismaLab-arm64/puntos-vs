@@ -1,6 +1,9 @@
-/* PUNTOS VS - Service Worker v22.0 */
+/* SUMMA - Service Worker v23.1 
+ * Diseñado por Ing. John A. Skinner S.
+ */
 
-const CACHE_NAME = 'puntos-vs-v22.0';
+const CACHE_NAME = 'summa-v23.1.0';
+const APP_VERSION = '23.1.0';
 const CACHE_ASSETS = [
     './',
     './index.html',
