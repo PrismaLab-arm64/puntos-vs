@@ -43,6 +43,31 @@ const app = {
         const splashDuration = 2500; // 2.5 segundos
         const startTime = Date.now();
         
+        // 0. Registrar Service Worker (REQUERIDO PARA PWA)
+        if ('serviceWorker' in navigator) {
+            try {
+                const registration = await navigator.serviceWorker.register('./sw.js');
+                console.log('✅ Service Worker registrado:', registration.scope);
+                
+                // Actualizar SW si hay una nueva versión
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('🔄 Nueva versión del Service Worker detectada');
+                    
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('✅ Nueva versión lista. Recarga la página para actualizarla.');
+                            // Opcionalmente puedes mostrar un toast al usuario
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error('❌ Error registrando Service Worker:', err);
+            }
+        } else {
+            console.warn('⚠️ Service Worker no soportado en este navegador');
+        }
+        
         // 1. Inicializar IndexedDB
         try {
             await DB.init();
@@ -94,23 +119,61 @@ const app = {
 
         // 6. PWA Installation prompt
         window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('📱 Evento beforeinstallprompt recibido');
             e.preventDefault();
             app.deferredPrompt = e;
             const btnInstall = document.getElementById('btn-install-app');
-            btnInstall.style.display = 'block';
-            
-            btnInstall.onclick = () => {
-                app.sfx.ok();
-                app.deferredPrompt.prompt();
-                app.deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ Usuario aceptó instalar');
-                        btnInstall.style.display = 'none';
-                    }
-                    app.deferredPrompt = null;
-                });
-            };
+            if (btnInstall) {
+                btnInstall.style.display = 'block';
+                console.log('✅ Botón de instalación mostrado');
+            } else {
+                console.error('❌ No se encontró btn-install-app');
+            }
         });
+
+        // Listener del botón de instalación (debe esperar a que exista el botón)
+        const setupInstallButton = () => {
+            const btnInstall = document.getElementById('btn-install-app');
+            if (btnInstall) {
+                btnInstall.onclick = async () => {
+                    console.log('🔘 Click en botón de instalación');
+                    if (!app.deferredPrompt) {
+                        console.error('❌ No hay deferredPrompt disponible');
+                        alert('La instalación no está disponible en este momento.');
+                        return;
+                    }
+                    
+                    try {
+                        app.sfx.ok();
+                        console.log('📲 Mostrando prompt de instalación...');
+                        await app.deferredPrompt.prompt();
+                        
+                        const choiceResult = await app.deferredPrompt.userChoice;
+                        console.log('👤 Respuesta del usuario:', choiceResult.outcome);
+                        
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('✅ Usuario aceptó instalar');
+                            btnInstall.style.display = 'none';
+                        } else {
+                            console.log('❌ Usuario rechazó la instalación');
+                        }
+                    } catch (err) {
+                        console.error('❌ Error al instalar:', err);
+                        alert('Error al instalar la aplicación: ' + err.message);
+                    } finally {
+                        app.deferredPrompt = null;
+                    }
+                };
+                console.log('✅ Listener del botón de instalación configurado');
+            }
+        };
+        
+        // Configurar botón cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupInstallButton);
+        } else {
+            setupInstallButton();
+        }
 
         // 7. Event listeners
         document.getElementById('btn-add-team').onclick = () => app.addRival();
