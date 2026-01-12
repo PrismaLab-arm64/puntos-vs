@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PUNTOS VS | Prisma Labs</title>
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
@@ -12,14 +12,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#121212">
     <meta name="mobile-web-app-capable" content="yes">
     
     <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
     
     <link rel="apple-touch-icon" href="icon.png">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Puntos VS">
+    
+    <!-- Nuevos módulos -->
+    <script src="js/db.js"></script>
+    <script src="js/wakelock.js"></script>
+    <script src="js/statemachine.js"></script>
 </head>
 <body>
 
@@ -95,6 +100,7 @@
                 <button onclick="app.editGoal()" class="menu-opt" style="border-color:#ffff00; color:#ffff00;">🎯 Meta: <span id="menu-goal-display">1000</span></button>
                 
                 <button onclick="app.toggleSound()" class="menu-opt">🔊 Sonido: <span id="sound-state">ON</span></button>
+                <button onclick="app.toggleOLEDMode()" class="menu-opt" style="border-color:#888; color:#888;">🌙 OLED: <span id="oled-state">OFF</span></button>
                 <button onclick="app.openShareModal()" class="menu-opt" style="border-color:#00eaff; color:#00eaff;">📲 Transferir / QR</button>
                 <button onclick="app.openEditNames()" class="menu-opt">✏️ Editar Nombres</button>
                 <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000; grid-column: span 2;">♻️ Reiniciar Puntos</button>

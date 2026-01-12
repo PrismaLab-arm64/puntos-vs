@@ -1,7 +1,40 @@
-:root { --neon-A: #ff0055; --neon-B: #00eaff; --neon-C: #39ff14; --neon-D: #ffff00; --bg: #050505; }
+:root { 
+    --neon-A: #ff0055; 
+    --neon-B: #00eaff; 
+    --neon-C: #39ff14; 
+    --neon-D: #ffff00; 
+    --bg: #121212; /* Gris profundo ergonómico */
+    --bg-oled: #000000; /* OLED Black opcional */
+    --text-primary: #E0E0E0; /* Gris claro para mejor legibilidad */
+    --text-secondary: #B0B0B0;
+    --surface: #1E1E1E;
+    --surface-elevated: #2A2A2A;
+}
+
+/* Clase opcional para OLED Black mode */
+body.oled-mode {
+    --bg: #000000;
+    --surface: #0a0a0a;
+    --surface-elevated: #111111;
+}
+
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
-body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--bg); color: #fff; margin: 0; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
+body { 
+    font-family: system-ui, -apple-system, sans-serif; 
+    background-color: var(--bg); 
+    color: var(--text-primary); 
+    margin: 0; 
+    height: 100dvh; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column;
+    /* Safe area para notch/isla dinámica */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
 
 /* LAYOUT */
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; max-width: 600px; margin: 0 auto; position: relative; }
