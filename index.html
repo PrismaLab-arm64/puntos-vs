@@ -176,34 +176,22 @@
 
     <!-- MODAL DE SALIDA -->
     <div id="exit-modal" class="modal">
-        <div class="setup-container" style="background:#111; border-radius:20px; height:auto; max-height:90%; width:90%; max-width:450px;">
+        <div class="setup-container" style="background:#111; border-radius:20px; height:auto; width:90%; max-width:400px; padding:30px;">
             <div style="font-size:4rem; margin-bottom:10px;">🚪</div>
             <h2>SALIR DE LA PARTIDA</h2>
             
-            <div id="exit-reminder" style="background:#331100; border:2px solid #ff9900; border-radius:10px; padding:15px; margin:15px 0; display:none;">
+            <div id="exit-reminder" style="background:#331100; border:2px solid #ff9900; border-radius:10px; padding:15px; margin:20px 0; display:none;">
                 <p style="color:#ffcc00; font-weight:bold; margin:0 0 5px 0;">⚠️ HAY UNA PARTIDA EN CURSO</p>
-                <p style="color:#ccc; font-size:0.9rem; margin:0;">¿Deseas compartirla antes de salir?</p>
+                <p style="color:#ccc; font-size:0.9rem; margin:0;">Se perderá el progreso si sales ahora.</p>
             </div>
             
-            <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
-                <button onclick="app.shareViaWhatsApp()" class="btn-start" style="background:#25D366; display:flex; align-items:center; justify-content:center; gap:10px;">
-                    <span style="font-size:1.5rem;">💬</span> Compartir por WhatsApp
+            <div style="display:flex; flex-direction:column; gap:12px; width:100%; margin-top:20px;">
+                <button onclick="app.confirmExit()" class="btn-start" style="background:#660000; border-color:#ff0000; color:#ff5555;">
+                    🚪 CONFIRMAR SALIDA
                 </button>
                 
-                <button onclick="app.shareViaGeneric()" class="btn-start" style="background:#0088cc; display:flex; align-items:center; justify-content:center; gap:10px;">
-                    <span style="font-size:1.5rem;">📤</span> Compartir en otras Apps
-                </button>
-                
-                <button onclick="app.downloadBitacora()" class="btn-add" style="display:flex; align-items:center; justify-content:center; gap:10px;">
-                    <span style="font-size:1.5rem;">📋</span> Descargar Bitácora
-                </button>
-                
-                <button onclick="app.confirmExit()" class="btn-add" style="margin-top:15px; background:#660000; border-color:#ff0000; color:#ff5555;">
-                    🚪 Salir sin Compartir
-                </button>
-                
-                <button onclick="app.closeExitModal()" class="btn-add" style="margin-top:5px; background:transparent; border-color:#555; color:#888;">
-                    ✕ Cancelar
+                <button onclick="app.closeExitModal()" class="btn-add" style="background:transparent; border-color:#555; color:#888;">
+                    ✕ CANCELAR
                 </button>
             </div>
         </div>

@@ -2,7 +2,7 @@
  * Diseñado por Ing. John A. Skinner S.
  */
 
-const APP_VERSION = '23.2.0';
+const APP_VERSION = '23.2.1';
 
 const app = {
     // --- ESTADO CORE ---
@@ -901,7 +901,7 @@ const app = {
         });
     },
 
-    // --- FUNCIONES DE SALIDA Y COMPARTIR ---
+    // --- FUNCIÓN DE SALIDA ---
     
     openExitModal: () => {
         const exitModal = document.getElementById('exit-modal');
@@ -926,140 +926,20 @@ const app = {
         app.sfx.tap();
     },
     
-    shareViaWhatsApp: () => {
-        const gameUrl = app.generateGameURL();
-        const message = app.generateShareMessage();
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message + '\n\n' + gameUrl)}`;
-        
-        window.open(whatsappUrl, '_blank');
-        app.sfx.ok();
-    },
-    
-    shareViaGeneric: async () => {
-        const gameUrl = app.generateGameURL();
-        const message = app.generateShareMessage();
-        
-        // Usar Web Share API si está disponible
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'SUMMA - Partida Actual',
-                    text: message,
-                    url: gameUrl
-                });
-                app.sfx.ok();
-            } catch (err) {
-                if (err.name !== 'AbortError') {
-                    console.error('Error al compartir:', err);
-                    app.fallbackShare(message, gameUrl);
-                }
-            }
-        } else {
-            app.fallbackShare(message, gameUrl);
-        }
-    },
-    
-    fallbackShare: (message, url) => {
-        // Fallback: copiar al portapapeles
-        const fullText = message + '\n\n' + url;
-        navigator.clipboard.writeText(fullText).then(() => {
-            alert('📋 Enlace copiado al portapapeles\n\nPégalo en cualquier app para compartir');
-            app.sfx.ok();
-        }).catch(err => {
-            console.error('Error al copiar:', err);
-            alert('❌ No se pudo copiar. Prueba el botón de Transferir/QR del menú.');
-        });
-    },
-    
-    generateGameURL: () => {
-        const state = {
-            mode: app.mode,
-            teams: app.teams.map(t => ({name:t.name, score:t.score})),
-            turn: app.turn,
-            goal: app.goal,
-            historyLog: app.historyLog
-        };
-        const dataStr = btoa(JSON.stringify(state));
-        return `${window.location.origin}${window.location.pathname}?data=${dataStr}`;
-    },
-    
-    generateShareMessage: () => {
-        const leadingTeam = [...app.teams].sort((a, b) => b.score - a.score)[0];
-        const totalPlays = app.historyLog.length;
-        
-        let message = `🎮 SUMMA - Partida en Curso\n\n`;
-        message += `🏆 Líder: ${leadingTeam.name} - ${leadingTeam.score} PTS\n`;
-        message += `🎯 Meta: ${app.goal} PTS\n`;
-        message += `📊 Jugadas: ${totalPlays}\n`;
-        message += `👥 Participantes: ${app.teams.length}\n\n`;
-        message += `¡Únete a la partida!`;
-        
-        return message;
-    },
-    
-    downloadBitacora: () => {
-        const bitacora = app.generateBitacoraText();
-        const blob = new Blob([bitacora], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        
-        a.href = url;
-        a.download = `SUMMA_Bitacora_${timestamp}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        app.sfx.ok();
-        alert('📋 Bitácora descargada correctamente');
-    },
-    
-    generateBitacoraText: () => {
-        let text = '═══════════════════════════════════════\n';
-        text += '        SUMMA - BITÁCORA DE PARTIDA\n';
-        text += '═══════════════════════════════════════\n\n';
-        
-        text += `📅 Fecha: ${new Date().toLocaleString('es-ES')}\n`;
-        text += `🎯 Meta: ${app.goal} PTS\n`;
-        text += `🎮 Modo: ${app.mode === 'teams' ? 'EQUIPOS' : 'INDIVIDUAL'}\n`;
-        text += `👥 Participantes: ${app.teams.length}\n\n`;
-        
-        text += '───────────────────────────────────────\n';
-        text += '           TABLA DE POSICIONES\n';
-        text += '───────────────────────────────────────\n\n';
-        
-        const sorted = [...app.teams].sort((a, b) => b.score - a.score);
-        sorted.forEach((team, idx) => {
-            const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}.`;
-            text += `${medal} ${team.name.padEnd(20)} ${team.score} PTS\n`;
-        });
-        
-        text += '\n───────────────────────────────────────\n';
-        text += '            HISTORIAL (últimas 20)\n';
-        text += '───────────────────────────────────────\n\n';
-        
-        const recentHistory = app.historyLog.slice(-20).reverse();
-        recentHistory.forEach((entry, idx) => {
-            text += `${recentHistory.length - idx}. ${entry}\n`;
-        });
-        
-        text += '\n═══════════════════════════════════════\n';
-        text += '   Generado por SUMMA v' + APP_VERSION + '\n';
-        text += '   Ing. John A. Skinner S.\n';
-        text += '═══════════════════════════════════════\n';
-        
-        return text;
-    },
-    
     confirmExit: async () => {
-        if (confirm('¿Estás seguro de salir sin compartir?\n\nSe perderá el progreso de la partida actual.')) {
-            // Limpiar estado guardado
-            await DB.clearGameState();
-            app.sfx.ok();
-            // Recargar la app
-            window.location.reload();
+        const gameActive = app.teams.some(t => t.score > 0) || app.historyLog.length > 0;
+        
+        if (gameActive) {
+            if (!confirm('¿Estás seguro de salir?\n\nSe perderá el progreso de la partida actual.')) {
+                return;
+            }
         }
+        
+        // Limpiar estado guardado
+        await DB.clearGameState();
+        app.sfx.ok();
+        // Recargar la app
+        window.location.reload();
     }
 };
 

@@ -6,6 +6,43 @@ Historial completo de cambios y versiones de SUMMA.
 
 ## [23.1.0] - 2026-01-12
 
+## Versión 23.2.1 (2026-01-12)
+
+### 🔧 SIMPLIFICACIÓN
+
+#### Botón de Salida Optimizado
+
+- **Eliminado**: Sistema completo de compartir (WhatsApp, Share API, Bitácora)
+- **Mantenido**: Solo botón "Salir" con confirmación simple
+- **Modal simplificado**:
+  - ⚠️ Advertencia si hay partida activa
+  - 🚪 Botón "Confirmar Salida" (rojo)
+  - ✕ Botón "Cancelar" (gris)
+
+### 📉 REDUCCIÓN DE CÓDIGO
+
+- **Eliminadas 7 funciones**: shareViaWhatsApp, shareViaGeneric, fallbackShare, generateGameURL, generateShareMessage, downloadBitacora, generateBitacoraText
+- **Simplificada confirmExit**: Doble confirmación si hay partida activa
+- **HTML más limpio**: -35 líneas (5 botones → 2 botones)
+- **JavaScript más ligero**: -140 líneas de código
+
+### ✨ MEJORAS EN UX
+
+- **Flujo más directo**: Menos opciones = decisión más rápida
+- **Confirmación inteligente**: 
+  - Sin partida activa: Sale directamente sin confirmar
+  - Con partida activa: Muestra advertencia + requiere confirmación
+- **Feedback visual claro**: Advertencia naranja cuando hay progreso en riesgo
+
+### 🎯 FUNCIONALIDAD FINAL
+
+**Botón "🚪 Salir" en menú:**
+1. Detecta si hay partida activa
+2. Muestra modal con advertencia (si aplica)
+3. Usuario confirma o cancela
+4. Si confirma: limpia IndexedDB y recarga app
+
+
 ## Versión 23.2.0 (2026-01-12)
 
 ### 🆕 NUEVAS CARACTERÍSTICAS

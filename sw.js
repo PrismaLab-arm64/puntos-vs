@@ -3,7 +3,7 @@
  * VERSIÓN SIMPLIFICADA - FUERZA ACTUALIZACIÓN
  */
 
-const CACHE_NAME = 'summa-v23.2.0';
+const CACHE_NAME = 'summa-v23.2.1';
 const APP_VERSION = '23.1.2';
 
 // Forzar actualización inmediata

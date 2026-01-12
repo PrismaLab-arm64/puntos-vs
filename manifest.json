@@ -2,7 +2,7 @@
   "name": "SUMMA - Marcador Universal Profesional",
   "short_name": "SUMMA",
   "description": "PWA profesional para registrar puntuaciones en tiempo real de más de 100 disciplinas deportivas. Diseñada por Ing. John A. Skinner S.",
-  "version": "23.2.0",
+  "version": "23.2.1",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
