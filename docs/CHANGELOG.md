@@ -5,6 +5,50 @@ Historial completo de cambios y versiones de SUMMA.
 ---
 
 ## [23.1.0] - 2026-01-12
+
+## Versión 23.2.0 (2026-01-12)
+
+### 🆕 NUEVAS CARACTERÍSTICAS
+
+#### Sistema de Salida Inteligente
+
+- **Botón "Salir" en menú**: Nuevo botón en el Centro de Comando para gestionar la salida de la aplicación
+- **Modal de salida con opciones**:
+  - ⚠️ **Recordatorio automático**: Si hay una partida activa, muestra advertencia antes de salir
+  - 💬 **Compartir por WhatsApp**: Envía el enlace de la partida directamente
+  - 📤 **Compartir en otras Apps**: Usa Web Share API nativa (funciona en iOS/Android)
+  - 📋 **Descargar Bitácora**: Exporta un archivo TXT con el historial completo
+  - 🚪 **Salir sin Compartir**: Opción para salir limpiamente (confirma antes de borrar)
+
+#### Funcionalidades de Compartir
+
+- **Generación automática de mensaje**: Incluye líder actual, meta, jugadas y participantes
+- **URL de partida**: Genera enlace único con estado completo codificado
+- **Bitácora profesional**: Formato texto con:
+  - Tabla de posiciones con medallas 🥇🥈🥉
+  - Historial de últimas 20 jugadas
+  - Metadatos de la partida
+  - Firma del desarrollador
+
+#### Integración con Share API
+
+- **Soporte nativo**: Usa `navigator.share()` cuando está disponible
+- **Fallback inteligente**: Copia al portapapeles si Share API no está disponible
+- **Compatible con**: WhatsApp, Telegram, Email, Bluetooth, etc.
+
+### 🔧 MEJORAS TÉCNICAS
+
+- **Detección de partida activa**: Verifica si hay puntos o historial antes de salir
+- **Limpieza de estado**: Borra IndexedDB al confirmar salida
+- **Feedback visual**: Recordatorios con colores y emojis
+- **SFX integrado**: Sonidos al abrir modal y ejecutar acciones
+
+### 📱 COMPATIBILIDAD
+
+- ✅ Android (Chrome, Firefox, Edge)
+- ✅ iOS (Safari, Chrome)
+- ✅ Desktop (todos los navegadores modernos)
+
 ## [23.1.2] - 2026-01-12
 
 ### 🔄 Actualización Forzada del Service Worker

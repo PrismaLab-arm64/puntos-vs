@@ -120,7 +120,8 @@
                 <button onclick="app.toggleOLEDMode()" class="menu-opt" style="border-color:#888; color:#888;">🌙 OLED: <span id="oled-state">OFF</span></button>
                 <button onclick="app.openShareModal()" class="menu-opt" style="border-color:#00eaff; color:#00eaff;">📲 Transferir / QR</button>
                 <button onclick="app.openEditNames()" class="menu-opt">✏️ Editar Nombres</button>
-                <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000; grid-column: span 2;">♻️ Reiniciar Puntos</button>
+                <button onclick="app.restartGame()" class="menu-opt" style="color:#ff5555; border-color:#550000;">♻️ Reiniciar Puntos</button>
+                <button onclick="app.openExitModal()" class="menu-opt" style="color:#ff9900; border-color:#663300;">🚪 Salir</button>
             </div>
             
             <div style="padding: 0 15px;">
@@ -171,6 +172,41 @@
         <button onclick="app.rematch('all')" class="btn-revancha">🔄 REVANCHA (TODOS)</button>
         <button onclick="app.rematch('top2')" class="btn-revancha" style="background: gold; color: black; margin-top: 10px;">🏆 FINAL (TOP 1 vs TOP 2)</button>
         <button onclick="location.reload()" class="btn-add" style="margin-top:20px; border:1px solid #555; background:transparent; color:#888;">SALIR / NUEVA</button>
+    </div>
+
+    <!-- MODAL DE SALIDA -->
+    <div id="exit-modal" class="modal">
+        <div class="setup-container" style="background:#111; border-radius:20px; height:auto; max-height:90%; width:90%; max-width:450px;">
+            <div style="font-size:4rem; margin-bottom:10px;">🚪</div>
+            <h2>SALIR DE LA PARTIDA</h2>
+            
+            <div id="exit-reminder" style="background:#331100; border:2px solid #ff9900; border-radius:10px; padding:15px; margin:15px 0; display:none;">
+                <p style="color:#ffcc00; font-weight:bold; margin:0 0 5px 0;">⚠️ HAY UNA PARTIDA EN CURSO</p>
+                <p style="color:#ccc; font-size:0.9rem; margin:0;">¿Deseas compartirla antes de salir?</p>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                <button onclick="app.shareViaWhatsApp()" class="btn-start" style="background:#25D366; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span style="font-size:1.5rem;">💬</span> Compartir por WhatsApp
+                </button>
+                
+                <button onclick="app.shareViaGeneric()" class="btn-start" style="background:#0088cc; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span style="font-size:1.5rem;">📤</span> Compartir en otras Apps
+                </button>
+                
+                <button onclick="app.downloadBitacora()" class="btn-add" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <span style="font-size:1.5rem;">📋</span> Descargar Bitácora
+                </button>
+                
+                <button onclick="app.confirmExit()" class="btn-add" style="margin-top:15px; background:#660000; border-color:#ff0000; color:#ff5555;">
+                    🚪 Salir sin Compartir
+                </button>
+                
+                <button onclick="app.closeExitModal()" class="btn-add" style="margin-top:5px; background:transparent; border-color:#555; color:#888;">
+                    ✕ Cancelar
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE CONFIRMACIÓN DE PUNTAJE -->
