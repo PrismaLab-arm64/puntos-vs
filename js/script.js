@@ -561,12 +561,6 @@ const app = {
         let pts = parseInt(val); 
         if (isNaN(pts)) pts = 0;
         
-        // Si el puntaje es 0, no mostrar confirmación
-        if (pts === 0) {
-            app.sfx.del();
-            return;
-        }
-        
         const currentTeam = app.teams[app.turn]; 
         let currentPlayer = ""; 
         
@@ -584,7 +578,7 @@ const app = {
             newScore: currentTeam.score + pts
         };
         
-        // Mostrar modal de confirmación
+        // Mostrar modal de confirmación (incluso para 0 puntos)
         app.showConfirmModal();
     },
 
@@ -607,8 +601,24 @@ const app = {
             playerName.style.display = 'none';
         }
         
-        // Actualizar puntos a agregar
-        document.getElementById('confirm-points').textContent = `+${pending.points}`;
+        // Actualizar label según si es 0 o no
+        const confirmLabel = document.querySelector('.confirm-label');
+        const confirmPoints = document.getElementById('confirm-points');
+        const confirmHint = document.querySelector('.confirm-hint');
+        
+        if (pending.points === 0) {
+            // Mensaje especial para 0 puntos (paso de turno)
+            confirmLabel.textContent = 'Sin puntos en este turno:';
+            confirmPoints.textContent = '0';
+            confirmPoints.style.color = '#ffff00'; // Amarillo para indicar paso
+            confirmHint.textContent = 'Confirma para pasar el turno sin sumar puntos';
+        } else {
+            // Mensaje normal para puntos
+            confirmLabel.textContent = 'Puntos a agregar:';
+            confirmPoints.textContent = `+${pending.points}`;
+            confirmPoints.style.color = '#00eaff'; // Cyan normal
+            confirmHint.textContent = 'Verifica que el puntaje sea correcto antes de confirmar';
+        }
         
         // Actualizar preview de puntajes
         document.getElementById('confirm-score-before').textContent = pending.prevScore;
