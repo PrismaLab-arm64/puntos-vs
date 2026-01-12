@@ -156,6 +156,51 @@
         <button onclick="location.reload()" class="btn-add" style="margin-top:20px; border:1px solid #555; background:transparent; color:#888;">SALIR / NUEVA</button>
     </div>
 
+    <!-- MODAL DE CONFIRMACIÓN DE PUNTAJE -->
+    <div id="confirm-score-modal" class="modal">
+        <div class="confirm-container">
+            <div class="confirm-icon">⚠️</div>
+            <h2 class="confirm-title">CONFIRMAR PUNTAJE</h2>
+            
+            <div class="confirm-preview">
+                <div class="confirm-team-info">
+                    <div id="confirm-team-name" class="confirm-team-name">EQUIPO A</div>
+                    <div id="confirm-player-name" class="confirm-player-name">Jugador Actual</div>
+                </div>
+                
+                <div class="confirm-points-display">
+                    <div class="confirm-label">Puntos a agregar:</div>
+                    <div id="confirm-points" class="confirm-points">+25</div>
+                </div>
+                
+                <div class="confirm-score-preview">
+                    <div class="score-before">
+                        <span class="score-label">Puntaje actual:</span>
+                        <span id="confirm-score-before" class="score-value">100</span>
+                    </div>
+                    <div class="score-arrow">→</div>
+                    <div class="score-after">
+                        <span class="score-label">Puntaje nuevo:</span>
+                        <span id="confirm-score-after" class="score-value score-highlight">125</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirm-buttons">
+                <button onclick="app.confirmScoreSubmit()" class="btn-confirm-yes">
+                    ✓ CONFIRMAR
+                </button>
+                <button onclick="app.cancelScoreSubmit()" class="btn-confirm-no">
+                    ✕ CORREGIR
+                </button>
+            </div>
+
+            <div class="confirm-hint">
+                Verifica que el puntaje sea correcto antes de confirmar
+            </div>
+        </div>
+    </div>
+
     <script src="js/script.js?v=21.1"></script>
 </body>
 </html>

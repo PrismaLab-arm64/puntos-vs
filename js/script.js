@@ -12,6 +12,7 @@ const app = {
     deferredPrompt: null,
     stateMachine: null,
     gameType: 'linear', // 'linear' o 'tennis'
+    pendingScore: null, // Para confirmación de puntajes
     
     // --- AUDIO SYSTEM ---
     audioCtx: new (window.AudioContext || window.webkitAudioContext)(),
@@ -520,8 +521,11 @@ const app = {
         let pts = parseInt(val); 
         if (isNaN(pts)) pts = 0;
         
-        app.sfx.ok(); 
-        document.getElementById('calc-display').textContent = "0";
+        // Si el puntaje es 0, no mostrar confirmación
+        if (pts === 0) {
+            app.sfx.del();
+            return;
+        }
         
         const currentTeam = app.teams[app.turn]; 
         let currentPlayer = ""; 
@@ -530,28 +534,101 @@ const app = {
             currentPlayer = currentTeam.membersArray[currentTeam.currentMemberIdx];
         }
         
-        app.historyLog.push({ 
-            teamIndex: app.turn, 
-            points: pts, 
-            playerName: currentPlayer, 
-            prevScore: currentTeam.score 
-        });
+        // Guardar datos temporales para la confirmación
+        app.pendingScore = {
+            points: pts,
+            teamIndex: app.turn,
+            team: currentTeam,
+            playerName: currentPlayer,
+            prevScore: currentTeam.score,
+            newScore: currentTeam.score + pts
+        };
         
-        currentTeam.score += pts;
+        // Mostrar modal de confirmación
+        app.showConfirmModal();
+    },
+
+    showConfirmModal: () => {
+        app.sfx.tap();
+        const pending = app.pendingScore;
+        const modal = document.getElementById('confirm-score-modal');
         
-        if(currentTeam.membersArray.length > 0) {
-            currentTeam.currentMemberIdx = (currentTeam.currentMemberIdx + 1) % currentTeam.membersArray.length;
+        // Actualizar información del equipo
+        const teamName = document.getElementById('confirm-team-name');
+        teamName.textContent = pending.team.name;
+        teamName.className = `confirm-team-name text-${pending.team.id}`;
+        
+        // Actualizar información del jugador
+        const playerName = document.getElementById('confirm-player-name');
+        if (pending.playerName) {
+            playerName.textContent = `Lanza: ${pending.playerName}`;
+            playerName.style.display = 'block';
+        } else {
+            playerName.style.display = 'none';
         }
         
-        // Guardar estado después de cada punto
+        // Actualizar puntos a agregar
+        document.getElementById('confirm-points').textContent = `+${pending.points}`;
+        
+        // Actualizar preview de puntajes
+        document.getElementById('confirm-score-before').textContent = pending.prevScore;
+        document.getElementById('confirm-score-after').textContent = pending.newScore;
+        
+        // Mostrar modal
+        modal.style.display = 'flex';
+    },
+
+    confirmScoreSubmit: () => {
+        app.sfx.ok();
+        const pending = app.pendingScore;
+        
+        // Limpiar display de calculadora
+        document.getElementById('calc-display').textContent = "0";
+        
+        // Aplicar puntos
+        app.historyLog.push({ 
+            teamIndex: pending.teamIndex, 
+            points: pending.points, 
+            playerName: pending.playerName, 
+            prevScore: pending.prevScore 
+        });
+        
+        pending.team.score += pending.points;
+        
+        // Avanzar al siguiente jugador si aplica
+        if(pending.team.membersArray.length > 0) {
+            pending.team.currentMemberIdx = (pending.team.currentMemberIdx + 1) % pending.team.membersArray.length;
+        }
+        
+        // Guardar estado después de confirmar
         app.saveGameState();
         
-        if(currentTeam.score >= app.goal) {
+        // Ocultar modal
+        document.getElementById('confirm-score-modal').style.display = 'none';
+        
+        // Verificar victoria o continuar
+        if(pending.team.score >= app.goal) {
             app.showVictoryScreen(); 
         } else { 
             app.turn = (app.turn + 1) % app.teams.length; 
             app.updateUI(); 
         }
+        
+        // Limpiar datos pendientes
+        app.pendingScore = null;
+    },
+
+    cancelScoreSubmit: () => {
+        app.sfx.del();
+        
+        // Ocultar modal
+        document.getElementById('confirm-score-modal').style.display = 'none';
+        
+        // No limpiar el display para que el usuario pueda corregir
+        // El valor se queda en la calculadora para editar
+        
+        // Limpiar datos pendientes
+        app.pendingScore = null;
     },
 
     showVictoryScreen: async () => {

@@ -263,3 +263,239 @@ input:focus { border-color: #00eaff; background: #000; }
     .setup-container { padding-left: max(20px, calc(20px + env(safe-area-inset-left))); padding-right: max(20px, calc(20px + env(safe-area-inset-right))); padding-bottom: max(20px, calc(20px + env(safe-area-inset-bottom))); }
     .controls { padding-bottom: max(10px, calc(10px + env(safe-area-inset-bottom))); }
 }
+
+/* ========================================
+   MODAL DE CONFIRMACIÓN DE PUNTAJE
+   ======================================== */
+
+.confirm-container {
+    background: var(--surface-elevated);
+    border-radius: clamp(16px, 4vw, 24px);
+    padding: clamp(20px, 5vw, 30px);
+    width: clamp(280px, 90vw, 400px);
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(15px, 3vw, 20px);
+    border: 2px solid #333;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    animation: confirmSlideIn 0.3s ease-out;
+}
+
+@keyframes confirmSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.confirm-icon {
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    animation: confirmPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes confirmPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.confirm-title {
+    font-size: clamp(1.2rem, 4vw, 1.5rem);
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.confirm-preview {
+    width: 100%;
+    background: var(--surface);
+    border-radius: 12px;
+    padding: clamp(15px, 3vw, 20px);
+    border: 1px solid #333;
+}
+
+.confirm-team-info {
+    text-align: center;
+    margin-bottom: clamp(12px, 3vw, 15px);
+    padding-bottom: clamp(12px, 3vw, 15px);
+    border-bottom: 1px solid #333;
+}
+
+.confirm-team-name {
+    font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+    font-weight: 900;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.confirm-player-name {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.confirm-points-display {
+    text-align: center;
+    margin: clamp(15px, 3vw, 20px) 0;
+}
+
+.confirm-label {
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.confirm-points {
+    font-size: clamp(3rem, 10vw, 4.5rem);
+    font-weight: 900;
+    font-family: monospace;
+    color: #00eaff;
+    text-shadow: 0 0 20px rgba(0, 234, 255, 0.5);
+    animation: confirmPointsPulse 2s ease-in-out infinite;
+}
+
+@keyframes confirmPointsPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.confirm-score-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(8px, 2vw, 12px);
+    margin-top: clamp(15px, 3vw, 20px);
+    padding: clamp(12px, 3vw, 15px);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.score-before,
+.score-after {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.score-label {
+    font-size: clamp(0.7rem, 2vw, 0.85rem);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.score-value {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 900;
+    font-family: monospace;
+    color: var(--text-primary);
+}
+
+.score-highlight {
+    color: #00eaff;
+    text-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+}
+
+.score-arrow {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    color: #00eaff;
+    flex-shrink: 0;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: clamp(10px, 2.5vw, 15px);
+    width: 100%;
+    margin-top: clamp(10px, 2.5vw, 15px);
+}
+
+.btn-confirm-yes,
+.btn-confirm-no {
+    flex: 1;
+    padding: clamp(14px, 3.5vw, 18px) clamp(20px, 5vw, 30px);
+    border-radius: 12px;
+    font-size: clamp(1rem, 2.8vw, 1.2rem);
+    font-weight: 900;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    touch-action: manipulation;
+}
+
+.btn-confirm-yes {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+}
+
+.btn-confirm-yes:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(0, 255, 136, 0.3);
+}
+
+.btn-confirm-no {
+    background: linear-gradient(135deg, #ff5555 0%, #cc3333 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 85, 85, 0.3);
+}
+
+.btn-confirm-no:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 8px rgba(255, 85, 85, 0.3);
+}
+
+.confirm-hint {
+    font-size: clamp(0.75rem, 2vw, 0.85rem);
+    color: var(--text-secondary);
+    text-align: center;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Responsive para el modal de confirmación */
+@media (max-width: 374px) {
+    .confirm-container {
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .confirm-score-preview {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .score-arrow {
+        transform: rotate(90deg);
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .confirm-container {
+        padding: 15px;
+        gap: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    .confirm-icon {
+        font-size: 2rem;
+    }
+    
+    .confirm-points {
+        font-size: 2.5rem;
+    }
+}
