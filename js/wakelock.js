@@ -1,4 +1,6 @@
-/* PRISMA LABS - Robust Wake Lock Manager v1.0 */
+/* SUMMA - Robust Wake Lock Manager v1.0
+ * Diseñado por Ing. John A. Skinner S.
+ */
 
 const WakeLockManager = {
     wakeLock: null,

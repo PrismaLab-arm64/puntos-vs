@@ -1,4 +1,6 @@
-/* PRISMA LABS - IndexedDB Persistence Layer v1.0 */
+/* SUMMA - IndexedDB Persistence Layer v1.0
+ * Diseñado por Ing. John A. Skinner S.
+ */
 
 const DB = {
     name: 'PuntosVS_DB',
